@@ -13,7 +13,8 @@ Looks come first; function second.
 |---|---|---|
 | Embers, clock, weather, now playing (with tinted album art), to-do, codex quote | [Übersicht](https://tracesof.net/uebersicht/) widgets | `ubersicht/` |
 | Top bar and autohiding dock, floating above windows | **Lace.app**, a small Swift + WKWebView app | `app/` |
-| Browser chrome, plus a start page for new tabs and home | [Zen](https://zen-browser.app) `userChrome.css` and an unsigned extension | `zen/` |
+| Browser chrome with horizontal tabs, plus a start page for new tabs and home | [Firefox Developer Edition](https://www.mozilla.org/firefox/developer/) `userChrome.css` and an unsigned extension | `firefox/` |
+| The same, for Zen's vertical layout | [Zen](https://zen-browser.app) `userChrome.css` (shares the start page) | `zen/` |
 | Terminal | [Ghostty](https://ghostty.org) theme | `ghostty/` |
 | Prompt, two lines in gold corner brackets | [starship](https://starship.rs) | `starship.toml` |
 | A codex line in each new terminal window | zsh hook | `shell/lace.zsh` |
@@ -86,6 +87,22 @@ Optional `~/.config/lace/config.json` (any subset of keys):
 `dock` (bundle IDs, `"|"` for a divider), `dockMode` (`autohide` | `pinned`),
 `showRunning`, `stageKeyMods` (e.g. `["opt"]`), `clockApp`.
 
+### Firefox
+
+Use **Developer Edition** (or Nightly or ESR): release Firefox only runs
+Mozilla-signed extensions, and the start page isn't signed.
+
+```bash
+brew install --cask firefox@developer-edition
+```
+
+Launch it once so it creates a profile, quit it (⌘Q), then run
+`~/lace-ember/firefox/install.sh`. That links `user.js`, `userChrome.css` and
+the storm image into the default profile, builds the start page and drops it
+into the profile's `extensions/` folder, where `user.js` lets Firefox enable it
+at launch. Tabs stay horizontal; the first nine carry Roman numerals (⌘1–9).
+Rerun the script after editing the start page or its tiles.
+
 ### Zen
 
 ```bash
@@ -112,9 +129,9 @@ quote simply stays hidden.
 
 ## Notes
 
-- Built and tested on macOS with Zen 1.24. Zen renames UI parts now and then,
-  so a `userChrome.css` rule that stops matching after an update is the first
-  suspect.
+- Built and tested on macOS with Firefox Developer Edition 161 and Zen 1.24.
+  Both rename UI parts now and then, so a `userChrome.css` rule that stops
+  matching after an update is the first suspect.
 - Übersicht compiles every save. Make a widget change in one write, or a
   half-finished edit shows an error screen over the desktop.
 - Check cut-outs and colours against a saturated red, not black, which hides

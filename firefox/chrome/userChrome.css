@@ -1,0 +1,358 @@
+/* Lace & Ember — Firefox chrome, horizontal tabs.
+ * Symlinked into the profile's chrome/ folder with storm-clean.jpg beside it.
+ * Needs toolkit.legacyUserProfileCustomizations.stylesheets = true (user.js).
+ * Written against Firefox Developer Edition 161; Firefox renames UI parts now
+ * and then, so a rule that stops matching after an update is the first suspect.
+ *
+ * Layout: the storm sits behind the tab strip and toolbar; the page is one
+ * Lace & Ember block inset from the window edge, with gold corner pins. The
+ * first nine tabs carry Roman numerals (⌘1–9 jumps to them), echoing the
+ * Lace bar's stages. */
+
+:root {
+  --le-ink: #0b0709;
+  --le-obsidian: #150d10;
+  --le-panel: rgba(13, 8, 10, 0.96);
+  --le-crimson: #b3263a;
+  --le-storm: #d9474f;
+  --le-ember: #ff7a3d;
+  --le-gold: #c9a45c;
+  --le-bone: #ede3d1;
+  --le-ash: #b9b0b8;
+  --le-hair: rgba(237, 227, 209, 0.42);
+  --le-hair-soft: rgba(237, 227, 209, 0.16);
+  --le-glow: rgba(179, 38, 58, 0.6);
+  --le-field: rgba(20, 12, 15, 0.88);
+  --le-ui: "Inter Tight", -apple-system, sans-serif;
+  --le-display: Cinzel, serif;
+  --le-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Firefox's own theme variables */
+  --lwt-accent-color: var(--le-ink) !important;
+  --lwt-text-color: var(--le-bone) !important;
+  --toolbar-bgcolor: transparent !important;
+  --toolbar-color: var(--le-bone) !important;
+  --toolbar-field-background-color: var(--le-field) !important;
+  --toolbar-field-color: var(--le-bone) !important;
+  --toolbar-field-border-color: transparent !important;
+  --toolbar-field-focus-background-color: rgba(13, 8, 10, 0.97) !important;
+  --toolbar-field-focus-color: var(--le-bone) !important;
+  --toolbar-field-focus-border-color: var(--le-gold) !important;
+  --toolbarbutton-icon-fill: var(--le-ash) !important;
+  --toolbarbutton-border-radius: 0px !important;
+  --toolbarbutton-hover-background: rgba(237, 227, 209, 0.07) !important;
+  --toolbarbutton-active-background: rgba(179, 38, 58, 0.3) !important;
+  --tab-border-radius: 0px !important;
+  --tab-selected-bgcolor: rgba(179, 38, 58, 0.18) !important;
+  --tab-selected-textcolor: var(--le-bone) !important;
+  --tab-hover-background-color: rgba(237, 227, 209, 0.05) !important;
+  --chrome-content-separator-color: transparent !important;
+  --urlbar-box-bgcolor: transparent !important;
+  --urlbar-box-hover-bgcolor: rgba(237, 227, 209, 0.07) !important;
+  --border-radius-small: 0px !important;
+  --border-radius-medium: 0px !important;
+  --arrowpanel-background: var(--le-panel) !important;
+  --arrowpanel-color: var(--le-bone) !important;
+  --arrowpanel-border-color: var(--le-hair) !important;
+  --arrowpanel-border-radius: 0px !important;
+  --panel-border-radius: 0px !important;
+  --menu-background-color: var(--le-panel) !important;
+  --menu-color: var(--le-bone) !important;
+  --menu-border-color: var(--le-hair) !important;
+  --menuitem-hover-background-color: var(--le-crimson) !important;
+  --menuitem-border-radius: 0px !important;
+  --sidebar-background-color: var(--le-obsidian) !important;
+  --sidebar-text-color: var(--le-bone) !important;
+  --focus-outline-color: var(--le-gold) !important;
+  accent-color: var(--le-crimson) !important;
+  font-family: var(--le-ui) !important;
+}
+
+/* ---- The window behind everything: dark storm ---------------------------- */
+#main-window {
+  background:
+    linear-gradient(rgba(11, 7, 9, 0.8), rgba(11, 7, 9, 0.9)),
+    url("storm-clean.jpg") center 30% / cover no-repeat,
+    var(--le-ink) !important;
+}
+#navigator-toolbox,
+#TabsToolbar,
+#nav-bar,
+#PersonalToolbar,
+#titlebar,
+#browser,
+#tabbrowser-tabbox,
+#tabbrowser-tabpanels {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--le-bone) !important;
+  border: 0 !important;
+}
+#navigator-toolbox {
+  padding-bottom: 6px !important;
+}
+#nav-bar {
+  box-shadow: none !important;
+  padding: 2px 6px !important;
+}
+/* a gold rule fading out under the toolbar */
+#nav-bar::after {
+  content: "";
+  position: absolute;
+  inset: auto 40px -4px 40px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(201, 164, 92, 0), rgba(201, 164, 92, 0.55), rgba(201, 164, 92, 0));
+}
+#nav-bar { position: relative; }
+
+/* ---- The page: one Lace & Ember block ------------------------------------ */
+#tabbrowser-tabbox {
+  position: relative;
+  margin: 2px 10px 10px !important;
+  outline: 1px solid var(--le-hair) !important;
+  outline-offset: -1px;
+  box-shadow: 0 0 0 1px #000, 0 0 0 4px rgba(10, 6, 8, 0.35), 0 18px 46px -14px var(--le-glow) !important;
+}
+.browserStack,
+.browserContainer {
+  background: var(--le-ink) !important;
+}
+/* gold corner pins over the page edges (clicks pass through) */
+#tabbrowser-tabbox::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.85;
+  background:
+    linear-gradient(var(--le-gold), var(--le-gold)) top left / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top left / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top right / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top right / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom left / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom left / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom right / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom right / 1px 12px no-repeat;
+}
+
+/* ---- Tabs ----------------------------------------------------------------- */
+#tabbrowser-tabs {
+  counter-reset: le-tab;
+  border: 0 !important;
+}
+.tabbrowser-tab {
+  font-family: var(--le-ui) !important;
+  font-size: 12.5px !important;
+  padding-inline: 2px !important;
+}
+.tabbrowser-tab:not([hidden]) {
+  counter-increment: le-tab;
+}
+.tabbrowser-tab .tab-label {
+  color: var(--le-ash) !important;
+}
+.tabbrowser-tab .tab-background {
+  border-radius: 0 !important;
+  margin-block: 5px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s !important;
+}
+.tabbrowser-tab:hover .tab-background {
+  background: rgba(237, 227, 209, 0.05) !important;
+  border-color: var(--le-hair-soft) !important;
+}
+.tabbrowser-tab:hover .tab-label {
+  color: var(--le-bone) !important;
+}
+.tabbrowser-tab:is([selected], [visuallyselected]) .tab-background {
+  background: rgba(179, 38, 58, 0.2) !important;
+  border-color: var(--le-hair) !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 8px 22px -10px var(--le-glow),
+    inset 0 -2px 0 var(--le-crimson) !important;
+}
+.tabbrowser-tab:is([selected], [visuallyselected]) .tab-label {
+  color: var(--le-bone) !important;
+}
+.tabbrowser-tab .tab-icon-image,
+.tab-close-button,
+.tab-content {
+  border-radius: 0 !important;
+}
+/* Roman numerals on the first nine tabs, in Cinzel, before the favicon */
+.tabbrowser-tab:not([pinned]) .tab-content::before {
+  content: counter(le-tab, upper-roman);
+  font-family: var(--le-display);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(201, 164, 92, 0.7);
+  min-width: 2.2em;
+  margin-inline-end: 4px;
+  text-align: center;
+}
+.tabbrowser-tab:nth-child(n + 10 of .tabbrowser-tab:not([hidden])) .tab-content::before {
+  content: "·";
+}
+.tabbrowser-tab:is([selected], [visuallyselected]) .tab-content::before {
+  color: var(--le-gold);
+}
+/* pinned tabs: square tiles */
+.tabbrowser-tab[pinned] .tab-background {
+  border-color: rgba(237, 227, 209, 0.2) !important;
+  background: rgba(20, 12, 15, 0.7) !important;
+}
+.tabbrowser-tab[pinned]:is([selected], [visuallyselected]) .tab-background {
+  border-color: var(--le-gold) !important;
+}
+/* tab dividers off */
+.tabbrowser-tab::after,
+.tabbrowser-tab::before {
+  display: none !important;
+}
+
+/* Tab groups: labels in the display face */
+.tab-group-label {
+  border-radius: 0 !important;
+  font-family: var(--le-display) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+}
+.tab-group-line {
+  border-radius: 0 !important;
+}
+
+/* ---- Toolbar buttons ------------------------------------------------------- */
+toolbarbutton {
+  color: var(--le-ash) !important;
+  fill: var(--le-ash) !important;
+}
+toolbarbutton:not([disabled]):hover {
+  color: var(--le-bone) !important;
+  fill: var(--le-bone) !important;
+}
+toolbarbutton .toolbarbutton-icon,
+toolbarbutton .toolbarbutton-badge-stack,
+toolbarbutton .toolbarbutton-text {
+  border-radius: 0 !important;
+}
+#tabs-newtab-button .toolbarbutton-icon,
+#new-tab-button .toolbarbutton-icon {
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.18) !important;
+}
+
+/* ---- URL bar ----------------------------------------------------------------- */
+/* Firefox has used both #urlbar-background and .urlbar-background; style both. */
+#urlbar-background,
+#urlbar > .urlbar-background {
+  border-radius: 0 !important;
+  background: var(--le-field) !important;
+  background-color: var(--le-field) !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.28) !important;
+}
+#urlbar:not([focused]):hover > :is(#urlbar-background, .urlbar-background) {
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.45) !important;
+}
+#urlbar:is([focused], [open]) > :is(#urlbar-background, .urlbar-background) {
+  background-color: rgba(13, 8, 10, 0.97) !important;
+  box-shadow: inset 0 0 0 1px var(--le-gold), 0 0 0 1px #000, 0 0 0 5px rgba(10, 6, 8, 0.4),
+    0 22px 60px -16px var(--le-glow) !important;
+}
+#urlbar,
+#urlbar-input,
+.urlbar-input {
+  font-family: var(--le-ui) !important;
+  color: var(--le-bone) !important;
+  border-radius: 0 !important;
+}
+#urlbar #identity-box,
+#urlbar #identity-icon-box,
+#urlbar #tracking-protection-icon-container,
+#urlbar .urlbar-page-action,
+#urlbar #searchmode-switcher,
+#urlbar .searchmode-switcher {
+  border-radius: 0 !important;
+}
+/* the start page is an extension page: drop the "Extension (Lace & Ember
+   Start)" chip so the field reads as empty, like a normal new tab */
+#identity-box.extensionPage #identity-icon-label,
+#identity-box.extensionPage #identity-icon-box {
+  display: none !important;
+}
+#urlbar[open] .urlbarView-row[selected],
+#urlbar[open] .urlbarView-row:hover > .urlbarView-row-inner {
+  background: rgba(179, 38, 58, 0.35) !important;
+  border-radius: 0 !important;
+}
+#urlbar[open] .urlbarView-row[selected] .urlbarView-title {
+  color: var(--le-bone) !important;
+}
+.urlbarView-url,
+.urlbarView-action {
+  color: var(--le-gold) !important;
+}
+.urlbarView-row-inner,
+.urlbarView-favicon,
+.search-one-offs .searchbar-engine-one-off-item {
+  border-radius: 0 !important;
+}
+
+/* ---- Bookmarks toolbar ------------------------------------------------------- */
+#PersonalToolbar toolbarbutton.bookmark-item {
+  font-family: var(--le-ui) !important;
+  border-radius: 0 !important;
+}
+
+/* ---- Menus and panels -------------------------------------------------------- */
+menupopup,
+panel {
+  --panel-border-radius: 0px !important;
+  --panel-background: var(--le-panel) !important;
+  --panel-color: var(--le-bone) !important;
+  --panel-border-color: var(--le-hair) !important;
+  --panel-shadow: 0 0 0 1px #000, 0 18px 40px -12px var(--le-glow) !important;
+}
+menupopup menuseparator,
+panel toolbarseparator {
+  border-top-color: rgba(201, 164, 92, 0.4) !important;
+}
+menupopup menu,
+menupopup menuitem {
+  border-radius: 0 !important;
+  font-family: var(--le-ui) !important;
+}
+menupopup menuitem[_moz-menuactive],
+menupopup menu[_moz-menuactive] {
+  background-color: var(--le-crimson) !important;
+  color: var(--le-bone) !important;
+}
+menupopup .menu-accel,
+menupopup .menu-iconic-accel {
+  font-family: var(--le-mono) !important;
+  color: var(--le-ash) !important;
+}
+.panel-subview-body toolbarbutton:hover,
+.subviewbutton:hover {
+  background-color: rgba(179, 38, 58, 0.35) !important;
+  border-radius: 0 !important;
+}
+
+/* ---- Find bar ------------------------------------------------------------------ */
+findbar {
+  background: var(--le-obsidian) !important;
+  border-top: 1px solid var(--le-hair-soft) !important;
+  color: var(--le-bone) !important;
+}
+.findbar-textbox {
+  border-radius: 0 !important;
+  background: var(--le-field) !important;
+  color: var(--le-bone) !important;
+}

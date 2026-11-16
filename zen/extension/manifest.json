@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Lace & Ember Start",
-  "version": "1.3",
-  "description": "The Lace & Ember start page as Zen's new tab and home page.",
+  "version": "1.5",
+  "description": "The Lace & Ember start page as the new tab and home page (Zen or Firefox).",
   "browser_specific_settings": {
     "gecko": {
       "id": "lace-ember-start@local"
