@@ -1,0 +1,377 @@
+/* Lace & Ember — Zen browser chrome.
+ * Symlinked into the profile's chrome/ folder. Needs
+ * toolkit.legacyUserProfileCustomizations.stylesheets = true (user.js).
+ * Written against Zen 1.24.2b; Zen renames UI parts now and then, so a rule
+ * that stops matching after an update is the first suspect. */
+
+:root {
+  --le-ink: #0b0709;
+  --le-obsidian: #150d10;
+  --le-panel: rgba(13, 8, 10, 0.92);
+  --le-crimson: #b3263a;
+  --le-storm: #d9474f;
+  --le-ember: #ff7a3d;
+  --le-gold: #c9a45c;
+  --le-bone: #ede3d1;
+  --le-ash: #b9b0b8;
+  --le-hair: rgba(237, 227, 209, 0.42);
+  --le-hair-soft: rgba(237, 227, 209, 0.16);
+  --le-glow: rgba(179, 38, 58, 0.6);
+  --le-ui: "Inter Tight", -apple-system, sans-serif;
+  --le-display: Cinzel, serif;
+  --le-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Zen's own theme variables */
+  --zen-primary-color: var(--le-crimson) !important;
+  --zen-branding-bg: var(--le-ink) !important;
+  --zen-colors-primary: #3a1018 !important;
+  --zen-colors-secondary: #4a1a24 !important;
+  --zen-colors-tertiary: var(--le-ink) !important;
+  --zen-colors-border: var(--le-hair-soft) !important;
+  --zen-colors-primary-foreground: var(--le-bone) !important;
+  --zen-colors-hover-bg: rgba(179, 38, 58, 0.22) !important;
+  --zen-colors-input-bg: rgba(20, 12, 15, 0.85) !important;
+  --zen-urlbar-background: rgba(20, 12, 15, 0.92) !important;
+  --zen-main-browser-background: var(--le-ink) !important;
+  --zen-main-browser-background-toolbar: var(--le-ink) !important;
+  --zen-themed-toolbar-bg-transparent: transparent !important;
+  --zen-border-radius: 0px !important;
+  --zen-native-inner-radius: 0px !important;
+  --zen-webview-border-radius: 0px !important;
+  --border-radius-medium: 0px !important;
+  --border-radius-small: 0px !important;
+  --tab-border-radius: 0px !important;
+  --toolbarbutton-border-radius: 0px !important;
+  --zen-big-shadow: 0 0 0 1px #000, 0 0 0 4px rgba(10, 6, 8, 0.35), 0 18px 46px -14px var(--le-glow) !important;
+  /* Zen's generic grey for toolbar elements (the pill left behind when the
+     URL bar floats, essentials, hovers) becomes dark ink */
+  --zen-toolbar-element-bg: rgba(20, 12, 15, 0.85) !important;
+  --zen-toolbar-element-bg-hover: rgba(237, 227, 209, 0.07) !important;
+
+  /* Firefox menus and panels */
+  --arrowpanel-background: var(--le-panel) !important;
+  --arrowpanel-color: var(--le-bone) !important;
+  --arrowpanel-border-color: var(--le-hair) !important;
+  --arrowpanel-border-radius: 0px !important;
+  --panel-border-radius: 0px !important;
+  --menu-background-color: var(--le-panel) !important;
+  --menu-color: var(--le-bone) !important;
+  --menu-border-color: var(--le-hair) !important;
+  --menuitem-hover-background-color: var(--le-crimson) !important;
+  --menuitem-border-radius: 0px !important;
+  --toolbar-field-background-color: rgba(20, 12, 15, 0.92) !important;
+  --toolbar-field-color: var(--le-bone) !important;
+  --toolbar-field-focus-background-color: rgba(13, 8, 10, 0.96) !important;
+  --toolbar-field-focus-border-color: var(--le-gold) !important;
+  --toolbarbutton-icon-fill: var(--le-ash) !important;
+  --toolbar-color: var(--le-bone) !important;
+  --focus-outline-color: var(--le-gold) !important;
+  accent-color: var(--le-crimson) !important;
+  font-family: var(--le-ui) !important;
+}
+
+/* ---- The window behind everything: dark storm ---------------------------- */
+#main-window,
+#zen-main-app-wrapper {
+  background:
+    linear-gradient(rgba(11, 7, 9, 0.86), rgba(11, 7, 9, 0.92)),
+    url("storm-clean.jpg") center / cover no-repeat,
+    var(--le-ink) !important;
+}
+#navigator-toolbox,
+#zen-appcontent-navbar-wrapper,
+#nav-bar,
+#TabsToolbar {
+  background: transparent !important;
+  color: var(--le-bone) !important;
+}
+
+/* ---- The page: one Lace & Ember block ------------------------------------ */
+#tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer {
+  border-radius: 0 !important;
+  outline: 1px solid var(--le-hair) !important;
+  outline-offset: -1px;
+  box-shadow: var(--zen-big-shadow) !important;
+}
+/* gold corner pins over the page edges (clicks pass through) */
+#tabbrowser-tabpanels .browserSidebarContainer.deck-selected::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.85;
+  background:
+    linear-gradient(var(--le-gold), var(--le-gold)) top left / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top left / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top right / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top right / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom left / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom left / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom right / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom right / 1px 12px no-repeat;
+}
+
+/* ---- Tabs ----------------------------------------------------------------- */
+.tabbrowser-tab {
+  font-family: var(--le-ui) !important;
+  font-size: 13px !important;
+}
+.tabbrowser-tab .tab-label {
+  color: var(--le-ash) !important;
+}
+.tabbrowser-tab .tab-background {
+  border-radius: 0 !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s !important;
+}
+.tabbrowser-tab:hover .tab-background {
+  background: rgba(237, 227, 209, 0.05) !important;
+  border-color: var(--le-hair-soft) !important;
+}
+.tabbrowser-tab:hover .tab-label {
+  color: var(--le-bone) !important;
+}
+.tabbrowser-tab:is([selected], [visuallyselected]) .tab-background {
+  background: rgba(179, 38, 58, 0.18) !important;
+  border-color: var(--le-hair) !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 8px 22px -10px var(--le-glow) !important;
+}
+.tabbrowser-tab:is([selected], [visuallyselected]) .tab-label {
+  color: var(--le-bone) !important;
+}
+.tabbrowser-tab .tab-icon-image {
+  border-radius: 0 !important;
+}
+.tab-close-button {
+  border-radius: 0 !important;
+}
+
+/* Essentials: square tiles */
+#zen-essentials .tabbrowser-tab .tab-background,
+.tabbrowser-tab[zen-essential="true"] .tab-background {
+  border: 1px solid rgba(237, 227, 209, 0.2) !important;
+  background: rgba(20, 12, 15, 0.7) !important;
+}
+.tabbrowser-tab[zen-essential="true"]:hover .tab-background {
+  border-color: rgba(237, 227, 209, 0.55) !important;
+  box-shadow: 0 8px 18px -8px var(--le-glow) !important;
+}
+.tabbrowser-tab[zen-essential="true"]:is([selected], [visuallyselected]) .tab-background {
+  border-color: var(--le-gold) !important;
+}
+
+/* The pinned / unpinned divider becomes a gold rule */
+.zen-workspace-pinned-tabs-section::after,
+#tabbrowser-arrowscrollbox-periphery hr,
+.pinned-tabs-container-separator {
+  background: linear-gradient(90deg, rgba(201, 164, 92, 0), rgba(201, 164, 92, 0.75), rgba(201, 164, 92, 0)) !important;
+  height: 1px !important;
+  border: 0 !important;
+}
+
+/* ---- Workspace label and switcher ---------------------------------------- */
+.zen-current-workspace-indicator-name,
+.zen-current-workspace-indicator .toolbarbutton-text {
+  font-family: var(--le-display) !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.24em !important;
+  text-transform: uppercase !important;
+  color: var(--le-gold) !important;
+}
+/* Workspaces as Roman-numeral pips, like the Lace bar's stages: the icon is
+   hidden and each button is numbered by a CSS counter (upper-roman). The
+   workspace name still shows on hover. */
+#zen-workspaces-button {
+  counter-reset: le-ws;
+  gap: 6px !important;
+}
+#zen-workspaces-button > toolbarbutton {
+  counter-increment: le-ws;
+  min-width: 30px !important;
+  max-width: none !important;
+  width: auto !important;
+  height: 22px !important;
+  padding: 0 7px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: 0 0 0 1px rgba(237, 227, 209, 0.18) !important;
+  filter: none !important;
+  opacity: 1 !important;
+  transition: box-shadow 0.2s, background 0.2s !important;
+}
+#zen-workspaces-button > toolbarbutton .zen-workspace-icon {
+  display: none !important;
+}
+#zen-workspaces-button > toolbarbutton::before {
+  content: counter(le-ws, upper-roman);
+  font-family: var(--le-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--le-ash);
+  line-height: 1;
+}
+#zen-workspaces-button > toolbarbutton:hover {
+  box-shadow: 0 0 0 1px rgba(237, 227, 209, 0.5) !important;
+}
+#zen-workspaces-button > toolbarbutton:hover::before {
+  color: var(--le-bone);
+}
+#zen-workspaces-button > toolbarbutton[active="true"] {
+  background: var(--le-crimson) !important;
+  animation: le-pip-pulse 3.2s ease-in-out infinite;
+}
+#zen-workspaces-button > toolbarbutton[active="true"]::before {
+  color: var(--le-bone);
+}
+@keyframes le-pip-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(237, 227, 209, 0.6), 0 0 10px 1px var(--le-glow); }
+  50%      { box-shadow: 0 0 0 1px rgba(237, 227, 209, 0.9), 0 0 22px 4px var(--le-glow); }
+}
+
+/* ---- Folders: the label was near-invisible ---------------------------------- */
+zen-folder .tab-group-label,
+zen-folder > .tab-group-label-container > label,
+.tab-group-label {
+  color: var(--le-ash) !important;
+  font-family: var(--le-ui) !important;
+}
+zen-folder[has-active] .tab-group-label,
+zen-folder:hover .tab-group-label {
+  color: var(--le-bone) !important;
+}
+
+/* ---- Toolbar buttons ------------------------------------------------------- */
+/* icons take their tint from `color` (context-fill); the defaults were too dim */
+toolbarbutton,
+#zen-sidebar-top-buttons toolbarbutton,
+#zen-sidebar-foot-buttons toolbarbutton {
+  color: var(--le-ash) !important;
+  fill: var(--le-ash) !important;
+  opacity: 1 !important;
+}
+toolbarbutton:not([disabled]):hover {
+  color: var(--le-bone) !important;
+  fill: var(--le-bone) !important;
+}
+toolbarbutton[disabled] {
+  opacity: 0.4 !important;
+}
+toolbarbutton .toolbarbutton-icon,
+toolbarbutton .toolbarbutton-badge-stack {
+  border-radius: 0 !important;
+}
+toolbarbutton:not([disabled]):hover > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack, .toolbarbutton-text) {
+  background-color: rgba(237, 227, 209, 0.07) !important;
+}
+
+/* ---- URL bar, in the sidebar and floating ---------------------------------- */
+/* Zen 1.24 draws the field with the .urlbar-background class (not the
+   #urlbar-background id) and rounds it 15px when floating; it also forces
+   border, outline and box-shadow off, so the bone edge is an inset shadow
+   on a more specific selector. */
+#urlbar > .urlbar-background,
+#urlbar:not([breakout-extend]):hover > .urlbar-background {
+  border-radius: 0 !important;
+  background: rgba(20, 12, 15, 0.85) !important;
+  background-color: rgba(20, 12, 15, 0.85) !important;
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.28) !important;
+}
+#urlbar:not([breakout-extend]):hover > .urlbar-background {
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.45) !important;
+}
+#urlbar[breakout-extend],
+#urlbar[breakout-extend] > .urlbar-background {
+  border-radius: 0 !important;
+}
+#urlbar[breakout-extend] > .urlbar-background {
+  background-color: rgba(13, 8, 10, 0.97) !important;
+  box-shadow: inset 0 0 0 1px var(--le-hair), 0 0 0 1px #000, 0 0 0 5px rgba(10, 6, 8, 0.4),
+    0 22px 60px -16px var(--le-glow) !important;
+}
+#urlbar #identity-icon-box,
+#urlbar .urlbar-input {
+  border-radius: 0 !important;
+}
+/* while the URL bar floats, the slot it left in the sidebar stays empty */
+#urlbar-container:has(#urlbar[zen-floating-urlbar="true"]),
+#urlbar-container:has(#urlbar[zen-floating-urlbar="true"]) > :not(#urlbar) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#urlbar-background {
+  border-radius: 0 !important;
+  border: 1px solid rgba(237, 227, 209, 0.3) !important;
+  background: rgba(20, 12, 15, 0.85) !important;
+  box-shadow: none !important;
+}
+#urlbar-input {
+  font-family: var(--le-ui) !important;
+  color: var(--le-bone) !important;
+}
+#urlbar:is([focused], [open]) > #urlbar-background,
+#urlbar[zen-floating-urlbar] > #urlbar-background {
+  background: rgba(13, 8, 10, 0.97) !important;
+  border-color: var(--le-hair) !important;
+  outline: 1px solid #000 !important;
+  box-shadow: 0 0 0 4px rgba(10, 6, 8, 0.4), 0 22px 60px -16px var(--le-glow) !important;
+}
+#urlbar[open] .urlbarView-row[selected],
+#urlbar[open] .urlbarView-row:hover {
+  background: rgba(179, 38, 58, 0.35) !important;
+  border-radius: 0 !important;
+}
+#urlbar[open] .urlbarView-row[selected] .urlbarView-title {
+  color: var(--le-bone) !important;
+}
+.urlbarView-url,
+.urlbarView-action {
+  color: var(--le-gold) !important;
+}
+.urlbarView-row-inner,
+.urlbarView-favicon {
+  border-radius: 0 !important;
+}
+
+/* ---- Menus and panels -------------------------------------------------------- */
+menupopup,
+panel {
+  --panel-border-radius: 0px !important;
+  --panel-background: var(--le-panel) !important;
+  --panel-color: var(--le-bone) !important;
+  --panel-border-color: var(--le-hair) !important;
+  --panel-shadow: 0 0 0 1px #000, 0 18px 40px -12px var(--le-glow) !important;
+}
+menupopup menuseparator,
+panel toolbarseparator {
+  border-top-color: rgba(201, 164, 92, 0.4) !important;
+}
+menupopup menu,
+menupopup menuitem {
+  border-radius: 0 !important;
+  font-family: var(--le-ui) !important;
+}
+menupopup menuitem[_moz-menuactive],
+menupopup menu[_moz-menuactive] {
+  background-color: var(--le-crimson) !important;
+  color: var(--le-bone) !important;
+}
+menupopup .menu-accel,
+menupopup .menu-iconic-accel {
+  font-family: var(--le-mono) !important;
+  color: var(--le-ash) !important;
+}
+.panel-subview-body toolbarbutton:hover,
+.subviewbutton:hover {
+  background-color: rgba(179, 38, 58, 0.35) !important;
+  border-radius: 0 !important;
+}
+
+/* ---- Sidebar footer --------------------------------------------------------- */
+#zen-sidebar-foot-buttons {
+  border-top: 1px solid rgba(237, 227, 209, 0.12) !important;
+}

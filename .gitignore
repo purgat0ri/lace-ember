@@ -1,0 +1,6 @@
+.DS_Store
+__pycache__/
+*.pyc
+ubersicht/art/
+zen/dist/
+zen/extension/codex-pool.js

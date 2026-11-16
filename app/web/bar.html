@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="lace.css">
+<style>
+.bar {
+  position: absolute; top: 10px; left: 14px; right: 14px; height: 36px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 16px;
+  animation: flare 0.8s ease-out both;
+}
+.left, .right { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.right { justify-content: flex-end; gap: 16px; font-size: 12.5px; }
+.word { font-family: var(--deco); font-size: 15px; letter-spacing: 0.08em; }
+.vr { width: 1px; height: 16px; background: rgba(237, 227, 209, 0.3); flex: none; }
+.app { font-family: var(--display); font-size: 12px; letter-spacing: 0.14em; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stages { display: flex; gap: 8px; }
+.pip {
+  min-width: 30px; height: 22px; padding: 0 7px; box-sizing: border-box;
+  font-family: var(--display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--ash); box-shadow: 0 0 0 1px rgba(237, 227, 209, 0.18);
+  transition: color .2s, box-shadow .2s, background .2s;
+}
+.pip:hover { color: var(--bone); box-shadow: 0 0 0 1px rgba(237, 227, 209, 0.5); }
+.pip.on { background: var(--crimson); color: var(--bone); animation: pulse 3.2s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(237, 227, 209, .6), 0 0 10px 1px var(--glow); }
+  50% { box-shadow: 0 0 0 1px rgba(237, 227, 209, .9), 0 0 22px 4px var(--glow); }
+}
+.np { display: flex; align-items: center; gap: 8px; color: var(--ash); max-width: 300px; min-width: 0; }
+.np span.t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np:hover span.t { color: var(--bone); }
+.wave { display: flex; align-items: flex-end; gap: 2px; height: 14px; flex: none; }
+.wave i { display: block; width: 3px; height: 14px; border-radius: 2px; background: linear-gradient(var(--ember), var(--crimson)); transform-origin: bottom; animation: wv 1.1s ease-in-out infinite; }
+.wave.paused i { animation-play-state: paused; opacity: .4; }
+@keyframes wv { 0%, 100% { transform: scaleY(.22); } 50% { transform: scaleY(1); } }
+.date { font-family: var(--display); font-weight: 600; letter-spacing: .1em; white-space: nowrap; }
+.time { font-family: var(--display); font-weight: 700; letter-spacing: .08em; white-space: nowrap; }
+.clock { display: flex; gap: 12px; }
+.clock:hover .date, .clock:hover .time { color: #fff; text-shadow: 0 0 12px var(--glow); }
+.dim { opacity: .35; }
+</style>
+</head>
+<body>
+<div class="bar blk">
+  <div class="left">
+    <svg width="26" height="22" viewBox="0 0 26 22" fill="none" stroke="#ede3d1" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 13 C3 11 2 5 4 1 C5 5 7 7 10 8"/><path d="M18 13 C23 11 24 5 22 1 C21 5 19 7 16 8"/><circle cx="13" cy="13" r="5"/><path d="M11 13h.01M15 13h.01" stroke-width="2"/><path d="M11.5 16.5h3"/></svg>
+    <span class="word">Abednego</span>
+    <span class="vr"></span>
+    <span class="app" id="app"></span>
+  </div>
+  <nav class="stages" id="stages" aria-label="Stages"></nav>
+  <div class="right">
+    <button class="np" id="np" aria-label="Now playing" style="display:none">
+      <span class="wave" id="wave"><i style="animation-delay:-.2s"></i><i style="animation-delay:-.6s"></i><i style="animation-delay:-.9s"></i><i style="animation-delay:-.4s"></i></span>
+      <span class="t" id="npt"></span>
+    </button>
+    <svg id="wifi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ede3d1" stroke-width="1.8" stroke-linecap="round" role="img" aria-label="Network"><path d="M2 9a15 15 0 0 1 20 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M9 16a5 5 0 0 1 6 0"/><path d="M12 19.5h.01" stroke-width="2.6"/></svg>
+    <span id="batt" style="display:flex;align-items:center;gap:6px">
+      <svg width="24" height="14" viewBox="0 0 26 14" fill="none" stroke="#ede3d1" stroke-width="1.4" role="img" aria-label="Battery"><rect x="1" y="1" width="21" height="12" rx="2"/><rect id="battfill" x="3.5" y="3.5" width="12" height="7" fill="#b3263a" stroke="none"/><path d="M24 5v4" stroke-width="2"/><path id="bolt" d="M12.5 2.5 9.5 7.5h4l-3 4" stroke="#ff7a3d" stroke-width="1.4" style="display:none"/></svg>
+      <span id="battpct" style="font-family:var(--mono);font-size:11px;color:var(--ash)"></span>
+    </span>
+    <button class="clock" id="clock" aria-label="Open calendar">
+      <span class="date" id="date"></span>
+      <span class="time" id="time"></span>
+    </button>
+  </div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const post = (m) => window.webkit && webkit.messageHandlers.lace.postMessage(m);
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
+const D = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function tick() {
+  const n = new Date();
+  let h = n.getHours() % 12 || 12;
+  $("time").textContent = `${h}:${String(n.getMinutes()).padStart(2, "0")}`;
+  $("date").textContent = `${D[n.getDay()]} ${n.getDate()} ${M[n.getMonth()]}`;
+}
+tick(); setInterval(tick, 1000);
+$("clock").onclick = () => post({ type: "clock" });
+$("np").onclick = () => post({ type: "music" });
+
+let lastStages = "";
+window.lace = {
+  update(s) {
+    $("app").textContent = s.app || "";
+    const key = JSON.stringify(s.stages);
+    if (key !== lastStages) {
+      lastStages = key;
+      const nav = $("stages"); nav.innerHTML = "";
+      (s.stages || []).forEach((st) => {
+        const b = document.createElement("button");
+        b.className = "pip" + (st.active ? " on" : "");
+        b.textContent = st.name ? `${ROMAN[st.n - 1] || st.n} · ${st.name}` : (ROMAN[st.n - 1] || st.n);
+        b.setAttribute("aria-label", `Stage ${st.n}`);
+        b.onclick = () => post({ type: "stage", n: st.n });
+        nav.appendChild(b);
+      });
+    }
+    const np = s.np;
+    if (np && np.title) {
+      $("np").style.display = "flex";
+      $("npt").textContent = `${np.title} — ${np.artist}`;
+      $("wave").classList.toggle("paused", np.state !== "playing");
+    } else $("np").style.display = "none";
+    $("wifi").classList.toggle("dim", !s.online);
+    const b = s.battery;
+    if (b) {
+      $("batt").style.display = "flex";
+      $("battfill").setAttribute("width", Math.max(1.5, 17 * b.pct / 100).toFixed(1));
+      $("battfill").setAttribute("fill", b.pct <= 20 && !b.plugged ? "#ff7a3d" : "#b3263a");
+      $("bolt").style.display = b.charging ? "" : "none";
+      $("battpct").textContent = b.pct + "%";
+    } else $("batt").style.display = "none";
+  },
+};
+</script>
+</body>
+</html>

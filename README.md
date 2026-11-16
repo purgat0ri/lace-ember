@@ -1,0 +1,129 @@
+# Lace & Ember
+
+A dark, ornate macOS desktop built around one design language: every panel is
+the same **block**. That means obsidian glass, a thin bone hairline, a black
+outline, gold corner pins and a crimson glow underneath. Colours come from a
+storm painting: ink, crimson, ember, gold and bone. The idea of applying one
+look everywhere comes from [SekaiPop](https://github.com/Blapples/SekaiPop),
+a Hyprland shell. This is the macOS version, built from Mac tools.
+
+Looks come first; function second.
+
+| Piece | Tool | Folder |
+|---|---|---|
+| Embers, clock, weather, now playing (with tinted album art), to-do, codex quote | [Übersicht](https://tracesof.net/uebersicht/) widgets | `ubersicht/` |
+| Top bar and autohiding dock, floating above windows | **Lace.app**, a small Swift + WKWebView app | `app/` |
+| Browser chrome, plus a start page for new tabs and home | [Zen](https://zen-browser.app) `userChrome.css` and an unsigned extension | `zen/` |
+| Terminal | [Ghostty](https://ghostty.org) theme | `ghostty/` |
+| Prompt, two lines in gold corner brackets | [starship](https://starship.rs) | `starship.toml` |
+| A codex line in each new terminal window | zsh hook | `shell/lace.zsh` |
+| Crimson glow on the focused window | [JankyBorders](https://github.com/FelixKratz/JankyBorders) | `borders/` |
+
+**Palette:** ink `#0B0709`, obsidian `#150D10`, crimson `#B3263A`, storm
+`#D9474F`, ember `#FF7A3D`, gold `#C9A45C`, bone `#EDE3D1`, ash `#B9B0B8`.
+
+**Type:** Cinzel, Cinzel Decorative, Inter Tight, JetBrains Mono (all free, via Homebrew casks).
+
+## Install
+
+Clone anywhere; the steps below assume `~/lace-ember`.
+
+```bash
+R=~/lace-ember
+brew install --cask ubersicht font-cinzel font-cinzel-decorative font-inter-tight font-jetbrains-mono
+brew install FelixKratz/formulae/borders starship jq
+
+# Übersicht: launch it once, then point its widgets folder here
+cd ~/Library/Application\ Support/Übersicht && mv widgets widgets.default && ln -s $R/ubersicht widgets
+
+# Ghostty, starship, borders
+ln -sfn $R/ghostty/config ~/.config/ghostty/config
+mkdir -p ~/.config/ghostty/themes && ln -sfn $R/ghostty/lace-ember ~/.config/ghostty/themes/lace-ember
+ln -sfn $R/starship.toml ~/.config/starship.toml
+mkdir -p ~/.config/borders && ln -sfn $R/borders/bordersrc ~/.config/borders/bordersrc
+brew services start borders
+
+# the codex line in new Ghostty windows (put it before `eval "$(starship init zsh)"`)
+echo "source $R/shell/lace.zsh" >> ~/.zshrc
+```
+
+The first time the widgets run, macOS asks whether Übersicht may control Music
+and OmniFocus, and OmniFocus asks to allow an external script.
+
+### Lace.app (top bar and dock)
+
+`app/build.sh` compiles `app/main.swift`, bundles `app/web/` and installs to
+`~/Applications/Lace.app`. Everything visual is HTML/CSS in `app/web/`;
+the Swift only supplies data (stages, front app, battery, network, now playing,
+dock apps) and actions.
+
+1. **Optional but recommended:** make a local code-signing certificate so
+   macOS keeps Lace's Accessibility permission across rebuilds. With ad-hoc
+   signing, every rebuild resets it.
+   ```bash
+   cd "$(mktemp -d)"
+   printf '[req]\ndistinguished_name=dn\nx509_extensions=ext\nprompt=no\n[dn]\nCN=Lace Local Code Signing\n[ext]\nbasicConstraints=critical,CA:false\nkeyUsage=critical,digitalSignature\nextendedKeyUsage=critical,codeSigning\n' > c.cnf
+   /usr/bin/openssl req -x509 -newkey rsa:2048 -nodes -keyout k.pem -out c.pem -days 3650 -config c.cnf
+   PW=$(/usr/bin/openssl rand -hex 16)
+   /usr/bin/openssl pkcs12 -export -inkey k.pem -in c.pem -out l.p12 -passout pass:$PW -name "Lace Local Code Signing"
+   security import l.p12 -k ~/Library/Keychains/login.keychain-db -P "$PW" -T /usr/bin/codesign
+   rm -f k.pem l.p12
+   ```
+2. `~/lace-ember/app/build.sh`
+3. Start at login: `~/lace-ember/launchd/install.sh`
+4. Give Lace **Accessibility** access (System Settings → Privacy & Security) so
+   the stage buttons can press your stage shortcut.
+5. Set the menu bar and the system Dock to hide automatically.
+
+Stages come from [BetterStage](https://betterstage.app): the bar reads its
+`stages.json` and switches with ⌥1–9 (`stageKeyMods` in the config below). To
+keep tiled windows clear of the bar, give BetterStage a top safe area of about
+52 pt. Its settings window caps that at 32, so write it directly while
+BetterStage's main process is quit:
+`defaults write app.betterstage.macos safeAreaMode advanced; defaults write app.betterstage.macos safeAreaTop 52`.
+
+Optional `~/.config/lace/config.json` (any subset of keys):
+`dock` (bundle IDs, `"|"` for a divider), `dockMode` (`autohide` | `pinned`),
+`showRunning`, `stageKeyMods` (e.g. `["opt"]`), `clockApp`.
+
+### Zen
+
+```bash
+P="$HOME/Library/Application Support/zen/Profiles/<id>.Default (release)"; R=~/lace-ember/zen
+ln -sfn $R/user.js "$P/user.js"
+ln -sfn $R/chrome/userChrome.css "$P/chrome/userChrome.css"
+ln -sfn $R/storm-clean.jpg "$P/chrome/storm-clean.jpg"
+```
+
+Quit Zen fully (⌘Q) and reopen. Then run `zen/build.sh`, and in Zen go to
+Add-ons → gear → *Install Add-on From File* → `zen/dist/lace-ember-start.xpi`.
+That works because Zen is built without forced extension signing; `user.js`
+turns signing off. Stock Firefox would refuse the unsigned extension. Edit the
+start page's tiles in `zen/extension/sites.js`.
+
+## The codex
+
+The desktop card, the Zen start page and the terminal greeting all show one
+sentence from a folder of Markdown files, quoted word for word and attributed
+to its file. The default folder is `~/Craft/Abednego/Lore` (the author's
+campaign world). Point `LACE_CODEX_DIR` at your own folder, or edit `LORE` in
+`ubersicht/lib/codex.py`. No lore ships with this repo. Without a folder, the
+quote simply stays hidden.
+
+## Notes
+
+- Built and tested on macOS with Zen 1.24. Zen renames UI parts now and then,
+  so a `userChrome.css` rule that stops matching after an update is the first
+  suspect.
+- Übersicht compiles every save. Make a widget change in one write, or a
+  half-finished edit shows an error screen over the desktop.
+- Check cut-outs and colours against a saturated red, not black, which hides
+  grey spill.
+
+## Licence
+
+Code is MIT (see `LICENSE`). **The artwork is not covered:**
+`zen/storm-clean.jpg`, `zen/extension/img/storm-clean.jpg` and
+`zen/extension/img/naamah-prowl.webp` are © the author, all rights reserved.
+They're included so the start page works; please don't reuse them elsewhere.
+Fonts are under their own (OFL) licences and aren't bundled.

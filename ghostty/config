@@ -1,0 +1,23 @@
+# Ghostty — Lace & Ember. Symlink this file to ~/.config/ghostty/config and the
+# lace-ember theme file into ~/.config/ghostty/themes/.
+# Reload a running Ghostty with Cmd+Shift+,.
+theme = lace-ember
+window-theme = dark
+
+font-family = JetBrains Mono
+font-size = 13
+adjust-cell-height = 15%
+
+window-padding-x = 16
+window-padding-y = 14
+window-padding-balance = true
+macos-titlebar-style = transparent
+
+cursor-style = block
+cursor-style-blink = true
+
+# obsidian glass over the storm
+background-opacity = 0.86
+background-blur = 24
+# Flip back to fully opaque on the fly.
+keybind = super+shift+o=toggle_background_opacity

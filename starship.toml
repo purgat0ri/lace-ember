@@ -1,0 +1,84 @@
+# Starship — Lace & Ember. Symlinked to ~/.config/starship.toml.
+# Two lines framed by gold corners, like the corner pins on every panel:
+#
+#   ┌ ◆ Abednego  ◇ main ~2                        ∴ 4s  XI
+#   └ ❯
+#
+# Only glyphs JetBrains Mono actually has (checked 16 Nov 2026): ┌ └ ◆ ◇ ❯ ∴ † ·
+# — no ✦, ☠ or runes, which would fall back to another font and sit off.
+
+format = """
+[┌](fg:#c9a45c) $directory$git_branch$git_status$python$status\
+$fill$cmd_duration${custom.hour}
+[└](fg:#c9a45c) $character"""
+add_newline = true
+
+[fill]
+symbol = " "
+
+[directory]
+style = "fg:#c9a45c"
+format = "[◆ $path]($style)[$read_only]($read_only_style) "
+truncation_length = 3
+truncate_to_repo = false
+read_only = " §"
+read_only_style = "fg:#d9474f"
+
+# named places
+[directory.substitutions]
+# "~/path/to/project" = "Name"   # show a folder by a short name
+"~/Developer" = "Dev"
+
+[git_branch]
+symbol = "◇ "
+style = "fg:#b9b0b8"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "fg:#ff7a3d"
+format = "([$all_status$ahead_behind]($style) )"
+modified = "~${count}"
+staged = "+${count}"
+untracked = "?${count}"
+deleted = "-${count}"
+renamed = "»${count}"
+conflicted = "!${count}"
+ahead = "↑${count}"
+behind = "↓${count}"
+diverged = "↕${ahead_count}/${behind_count}"
+stashed = ""
+
+[python]
+style = "fg:#7d9a98"
+format = "[· $virtualenv]($style) "
+detect_extensions = []
+detect_files = []
+
+# a failed command marks the top line with a crimson dagger and its exit code
+[status]
+disabled = false
+symbol = "†"
+style = "fg:#d9474f"
+format = "[$symbol $status]($style) "
+success_symbol = ""
+not_executable_symbol = "†"
+not_found_symbol = "†"
+sigint_symbol = "†"
+signal_symbol = "†"
+
+[cmd_duration]
+min_time = 3000
+style = "fg:#c9a45c"
+format = "[∴ $duration]($style)  "
+
+# the hour in Roman numerals, like the bar's stage pips
+[custom.hour]
+command = 'set -- I II III IV V VI VII VIII IX X XI XII; eval echo "\${$(date +%-I)}"'
+when = true
+shell = ["sh"]
+style = "fg:#b9b0b8"
+format = "[$output]($style)"
+
+[character]
+success_symbol = "[❯](bold fg:#ff7a3d)"
+error_symbol = "[❯](bold fg:#d9474f)"

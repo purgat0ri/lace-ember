@@ -1,0 +1,23 @@
+# Lace & Ember — Ghostty theme. Colours from the Naamah storm painting.
+palette = 0=#1a1114
+palette = 1=#b3263a
+palette = 2=#8f9a5b
+palette = 3=#c9a45c
+palette = 4=#6e5a7e
+palette = 5=#a8456b
+palette = 6=#7d9a98
+palette = 7=#b9b0b8
+palette = 8=#4a3a40
+palette = 9=#d9474f
+palette = 10=#b0bb78
+palette = 11=#e8c27a
+palette = 12=#9682a8
+palette = 13=#d16f94
+palette = 14=#a5c0bd
+palette = 15=#ede3d1
+background = #0b0709
+foreground = #ede3d1
+cursor-color = #ff7a3d
+cursor-text = #0b0709
+selection-background = #4a1a24
+selection-foreground = #ede3d1

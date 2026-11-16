@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="lace.css">
+<style>
+/* the window is sized to the dock plus room for the lift, the pin and the glow */
+body { display: flex; justify-content: center; align-items: flex-end; height: 100vh; }
+.wrap { padding: 34px 30px 16px; }
+.dock { display: flex; align-items: center; gap: 12px; padding: 12px 18px; }
+.dock.flare { animation: flare 0.45s ease-out both; }
+.item { position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(237, 227, 209, 0.22); background: rgba(20, 12, 15, 0.7);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s; }
+.item img { width: 36px; height: 36px; filter: grayscale(1) sepia(.45) saturate(1.6) hue-rotate(-28deg) brightness(.92) contrast(1.08);
+  transition: filter .25s ease; }
+.item:hover { transform: translateY(-6px); border-color: rgba(237, 227, 209, .6); box-shadow: 0 10px 22px -6px var(--glow); }
+.item:hover img, .item.front img { filter: none; }
+.item.front { border-color: rgba(237, 227, 209, .55); box-shadow: 0 0 0 1px rgba(237, 227, 209, .25), 0 0 16px -2px var(--glow); }
+.item.running::after { content: ""; position: absolute; bottom: -9px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px;
+  border-radius: 50%; background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+.tip { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%) translateY(4px); opacity: 0; pointer-events: none;
+  white-space: nowrap; font-family: var(--display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--bone); background: rgba(13, 8, 10, .92); border: 1px solid rgba(201, 164, 92, .6); padding: 4px 9px;
+  transition: opacity .15s, transform .15s; }
+.item:hover .tip { opacity: 1; transform: translateX(-50%); }
+.sep { width: 1px; height: 30px; background: rgba(201, 164, 92, .5); }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap"><nav class="dock blk pin" id="dock" aria-label="Dock"></nav></div>
+<script>
+const post = (m) => window.webkit && webkit.messageHandlers.lace.postMessage(m);
+const dock = document.getElementById("dock");
+let lastKey = "";
+function report() {
+  const r = document.getElementById("wrap").getBoundingClientRect();
+  post({ type: "size", w: r.width, h: r.height });
+}
+window.lace = {
+  update(s) {
+    const key = JSON.stringify(s.items.map((i) => [i.id, i.running, i.front, !!i.sep]));
+    if (key === lastKey) return;
+    lastKey = key;
+    dock.innerHTML = "";
+    s.items.forEach((it) => {
+      if (it.sep) { const d = document.createElement("span"); d.className = "sep"; dock.appendChild(d); return; }
+      const b = document.createElement("button");
+      b.className = "item" + (it.running ? " running" : "") + (it.front ? " front" : "");
+      b.setAttribute("aria-label", it.name);
+      b.innerHTML = `<img alt="" src="${it.icon}"><span class="tip"></span>`;
+      b.querySelector(".tip").textContent = it.name;
+      b.onclick = () => post({ type: "open", id: it.id });
+      dock.appendChild(b);
+    });
+    requestAnimationFrame(report);
+  },
+  shown(on) {
+    if (!on) return;
+    dock.classList.remove("flare"); void dock.offsetWidth; dock.classList.add("flare");
+  },
+};
+</script>
+</body>
+</html>

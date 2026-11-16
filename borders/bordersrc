@@ -1,0 +1,13 @@
+#!/bin/bash
+# JankyBorders — Lace & Ember: crimson glow on the focused window only.
+# Inactive borders are fully transparent: BetterStage hides off-stage windows
+# without moving them, and a visible inactive border outlined those ghosts.
+# Symlinked to ~/.config/borders/bordersrc.
+options=(
+  style=square
+  width=5.0
+  hidpi=on
+  active_color=glow\(0xffb3263a\)
+  inactive_color=0x00000000
+)
+borders "${options[@]}"
