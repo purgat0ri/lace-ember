@@ -1,0 +1,224 @@
+/* ==UserStyle==
+@name Reddit · Lace & Ember
+@namespace lace-ember/reddit
+@version 1.0.0
+@description Reddit in the Lace & Ember palette: dusk wine, bone text, a crimson, gold or ember accent, square cards with a bone hairline.
+@author Lace & Ember (colour rules adapted from Catppuccin's Reddit userstyle, MIT, github.com/catppuccin/userstyles)
+@license MIT
+
+@preprocessor less
+@var select accentColor "Accent" ["storm:Crimson*", "gold:Gold", "ember:Ember"]
+==/UserStyle== */
+
+/* Lace & Ember mapped onto Catppuccin's colour names, so Catppuccin's
+   per-site rules can be reused as they are. Dusk wine surfaces (matching the
+   Dark Reader background #2A1C25), bone text, warm accents: links and
+   "blue" things turn gold, success stays a muted sage. */
+#lace {
+  .palette() {
+    @crust: #150d10;     // obsidian
+    @mantle: #1e1419;
+    @base: #2a1c25;      // dusk, night strength
+    @surface0: #36242e;
+    @surface1: #452e39;
+    @surface2: #553846;
+    @overlay0: #6e5560;
+    @overlay1: #85707a;
+    @overlay2: #9c8b93;
+    @subtext0: #b9b0b8;  // ash
+    @subtext1: #d3c9c4;
+    @text: #ede3d1;      // bone
+
+    @rosewater: #f1d9c7;
+    @flamingo: #e8b4a8;
+    @pink: #e59aa8;
+    @mauve: #c9a45c;     // gold
+    @red: #d9474f;       // storm
+    @maroon: #e06a6f;
+    @peach: #ff7a3d;     // ember
+    @yellow: #c9a45c;    // gold
+    @green: #a9b98a;
+    @teal: #8fb8a8;
+    @sky: #a9bccb;
+    @sapphire: #98aec4;
+    @blue: #d4b06a;      // links: gold
+    @lavender: #b58f62;  // visited links: dimmer gold
+
+    @storm: #d9474f;
+    @gold: #c9a45c;
+    @ember: #ff7a3d;
+    @accent: @@accentColor;
+    @on-accent: if((@accentColor = gold), @crust, @text);
+  }
+
+  .defaults() {
+    color-scheme: dark;
+    scrollbar-color: @surface2 @mantle;
+
+    ::selection {
+      background-color: fade(#b3263a, 55%);
+      color: @text;
+    }
+
+    input,
+    textarea {
+      &::placeholder {
+        color: @subtext0 !important;
+      }
+    }
+  }
+}
+
+@-moz-document domain("reddit.com") {
+  :root, .theme-rpl, .theme-beta, .theme-light, .theme-dark {
+    #lace-ember();
+  }
+
+  #lace-ember() {
+    #lace.palette();
+    #lace.defaults();
+
+    --color-pizzaRed: @red !important;
+    --color-global-brand-orangered: @accent !important;
+    --color-global-focus: @surface1 !important;
+    --color-interactive-content-disabled: @subtext0 !important;
+    --color-interactive-background-disabled: fade(@surface2, 70%) !important;
+    --color-interactive-pressed: @surface2 !important;
+    --color-neutral-content: @text !important;
+    --color-neutral-content-disabled: @subtext0 !important;
+    --color-neutral-content-weak: @subtext0 !important;
+    --color-neutral-content-strong: @text !important;
+    --color-global-white: @crust !important;
+    --color-neutral-background: @base !important;
+    --color-neutral-background-selected: @surface0 !important;
+    --color-neutral-background-weak: @mantle !important;
+    --color-neutral-background-medium: @base !important;
+    --color-neutral-background-strong: @crust !important;
+    --color-neutral-background-hover: @surface0 !important;
+    --color-neutral-border: @surface0 !important;
+    --color-neutral-border-medium: @surface0 !important;
+    --color-neutral-border-weak: @surface0 !important;
+    --color-neutral-border-strong: @surface2 !important;
+    --color-primary: @accent !important;
+    --color-primary-hover: lighten(@accent, 10%) !important;
+    --color-primary-visited: @lavender !important;
+    --color-primary-background: @accent !important;
+    --color-primary-background-hover: darken(@accent, 5%) !important;
+    --color-primary-background-selected: darken(@accent, 5%) !important;
+    --color-primary-onBackground: @on-accent !important;
+    --color-primary-onBackground-selected: @on-accent !important;
+    --color-secondary: @subtext0 !important;
+    --color-secondary-hover: @subtext1 !important;
+    --color-secondary-weak: @subtext0 !important;
+    --color-secondary-onBackground: @text !important;
+    --color-secondary-background: @mantle !important;
+    --color-secondary-background-hover: @surface1 !important;
+    --color-secondary-background-selected: @surface1 !important;
+    --color-secondary-plain: @subtext0 !important;
+    --color-secondary-plain-hover: @subtext1 !important;
+    --color-secondary-plain-weak: @subtext0 !important;
+    --color-danger-background: @red !important;
+    --color-danger-background-disabled: fade(@red, 20%) !important;
+    --color-danger-background-hover: fade(@red, 98%) !important;
+    --color-danger-onBackground: @text !important;
+    --color-danger-content: @red !important;
+    --color-danger-content-default: @crust;
+    --color-danger-content-hover: darken(@red, 2%) !important;
+    --color-success-content: @green !important;
+    --color-success-hover: darken(@green, 2%) !important;
+    --color-success-onBackground: @crust;
+    --color-success-background: @green !important;
+    --color-success-background-hover: darken(@green, 2%) !important;
+    --color-warning-content: @yellow !important;
+    --color-warning-content-hover: darken(@yellow, 2%) !important;
+    --color-warning-onBackground: @base !important;
+    --color-warning-background: @yellow !important;
+    --color-warning-background-hover: darken(@yellow, 2%) !important;
+    --color-upvote-content: @accent !important;
+    --color-upvote-disabled: @subtext0 !important;
+    --color-upvote-onBackground: @text !important;
+    --color-upvote-background: @base !important;
+    --color-upvote-background-hover: darken(@accent, 5%) !important;
+    --color-upvote-background-disabled: @base !important;
+    --color-downvote-content: @text !important;
+    --color-downvote-content-weak: @text !important;
+    --color-downvote-disabled: @subtext0 !important;
+    --color-downvote-onBackground: @text !important;
+    --color-downvote-background: @base !important;
+    --color-downvote-background-hover: darken(@blue, 5%) !important;
+    --color-downvote-background-disabled: @mantle !important;
+    --color-tone-1: @text !important;
+    --color-tone-2: @subtext0 !important;
+    --color-tone-3: @overlay2 !important;
+    --color-tone-4: @surface0 !important;
+    --color-tone-5: @surface1 !important;
+    --color-tone-6: @surface2 !important;
+    --color-tone-7: @base !important;
+    --color-avatar-gradient: @accent !important;
+    --color-transparent-background-hover: fade(@surface0, 30%) !important;
+    --color-opacity-50: fade(@base, 50%) !important;
+    --color-online: @accent !important;
+    --color-favorite: @accent !important;
+    --color-brand-background: @accent !important;
+    --color-brand-background-hover: darken(@accent, 5%) !important;
+    --color-brand-onBackground: @on-accent !important;
+    --color-global-orangered: @accent !important;
+    --color-action-upvote: @accent !important;
+    --color-action-downvote: @blue;
+    --color-banner-error-text: @base !important;
+
+    --shreddit-color-wordmark: @accent;
+    #reddit-logo {
+      circle[fill="#FF4500"] {
+        fill: @accent !important;
+      }
+      path[fill="#FFF"] {
+        fill: @crust !important;
+      }
+    }
+
+    /* Trending news carousel on https://www.reddit.com/r/popular/. */
+    shreddit-gallery-carousel {
+      // Headline
+      .text-primary-onBackground {
+        color: @text;
+      }
+
+      // r/... *and more*
+      .text-coolgray-350 {
+        color: @subtext1;
+      }
+    }
+
+    /* Community themes - post header/metadata background and text. */
+    #pdp-credit-bar {
+      --color-neutral-background: @base;
+      --color-neutral-content: @text;
+      --color-neutral-content-weak: @subtext0;
+      --color-primary-hover: lighten(@accent, 10%);
+    }
+
+    reddit-header-large reddit-search-large::before,
+    reddit-header-large reddit-search-large::after {
+      background:
+        linear-gradient(@base, @base) padding-box,
+        linear-gradient(90deg, @accent, @accent) border-box;
+    }
+  }
+}
+
+/* Lace & Ember touches beyond colour: square, hairline-edged post cards */
+@-moz-document domain("reddit.com") {
+  shreddit-post,
+  shreddit-comment-tree,
+  #right-sidebar-container > *,
+  faceplate-dropdown-menu {
+    border-radius: 0 !important;
+  }
+  shreddit-post {
+    box-shadow: inset 0 0 0 1px fade(#ede3d1, 10%) !important;
+  }
+  shreddit-post:hover {
+    box-shadow: inset 0 0 0 1px fade(#c9a45c, 45%) !important;
+  }
+}

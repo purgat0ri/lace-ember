@@ -1,0 +1,156 @@
+/* ==UserStyle==
+@name Reddit · Lace & Ember
+@namespace lace-ember/reddit
+@version 1.0.1
+@description Reddit in the Lace & Ember palette: dusk wine, bone text, crimson accent, gold links, square cards with a bone hairline.
+@author Lace & Ember (colour rules adapted from Catppuccin's Reddit userstyle, MIT, github.com/catppuccin/userstyles)
+@license MIT
+==/UserStyle== */
+
+/* Plain CSS, compiled from reddit.user.less with the crimson accent. Edit the
+   .less source (it also offers gold and ember accents) and recompile; this
+   file exists because it installs anywhere without a preprocessor. */
+
+@-moz-document domain("reddit.com") {
+  :root,
+  .theme-rpl,
+  .theme-beta,
+  .theme-light,
+  .theme-dark {
+    color-scheme: dark;
+    scrollbar-color: #553846 #1e1419;
+    --color-pizzaRed: #d9474f !important;
+    --color-global-brand-orangered: #d9474f !important;
+    --color-global-focus: #452e39 !important;
+    --color-interactive-content-disabled: #b9b0b8 !important;
+    --color-interactive-background-disabled: rgba(85, 56, 70, 0.7) !important;
+    --color-interactive-pressed: #553846 !important;
+    --color-neutral-content: #ede3d1 !important;
+    --color-neutral-content-disabled: #b9b0b8 !important;
+    --color-neutral-content-weak: #b9b0b8 !important;
+    --color-neutral-content-strong: #ede3d1 !important;
+    --color-global-white: #150d10 !important;
+    --color-neutral-background: #2a1c25 !important;
+    --color-neutral-background-selected: #36242e !important;
+    --color-neutral-background-weak: #1e1419 !important;
+    --color-neutral-background-medium: #2a1c25 !important;
+    --color-neutral-background-strong: #150d10 !important;
+    --color-neutral-background-hover: #36242e !important;
+    --color-neutral-border: #36242e !important;
+    --color-neutral-border-medium: #36242e !important;
+    --color-neutral-border-weak: #36242e !important;
+    --color-neutral-border-strong: #553846 !important;
+    --color-primary: #d9474f !important;
+    --color-primary-hover: #e27177 !important;
+    --color-primary-visited: #b58f62 !important;
+    --color-primary-background: #d9474f !important;
+    --color-primary-background-hover: #d5323b !important;
+    --color-primary-background-selected: #d5323b !important;
+    --color-primary-onBackground: #ede3d1 !important;
+    --color-primary-onBackground-selected: #ede3d1 !important;
+    --color-secondary: #b9b0b8 !important;
+    --color-secondary-hover: #d3c9c4 !important;
+    --color-secondary-weak: #b9b0b8 !important;
+    --color-secondary-onBackground: #ede3d1 !important;
+    --color-secondary-background: #1e1419 !important;
+    --color-secondary-background-hover: #452e39 !important;
+    --color-secondary-background-selected: #452e39 !important;
+    --color-secondary-plain: #b9b0b8 !important;
+    --color-secondary-plain-hover: #d3c9c4 !important;
+    --color-secondary-plain-weak: #b9b0b8 !important;
+    --color-danger-background: #d9474f !important;
+    --color-danger-background-disabled: rgba(217, 71, 79, 0.2) !important;
+    --color-danger-background-hover: rgba(217, 71, 79, 0.98) !important;
+    --color-danger-onBackground: #ede3d1 !important;
+    --color-danger-content: #d9474f !important;
+    --color-danger-content-default: #150d10;
+    --color-danger-content-hover: #d73f47 !important;
+    --color-success-content: #a9b98a !important;
+    --color-success-hover: #a4b584 !important;
+    --color-success-onBackground: #150d10;
+    --color-success-background: #a9b98a !important;
+    --color-success-background-hover: #a4b584 !important;
+    --color-warning-content: #c9a45c !important;
+    --color-warning-content-hover: #c6a054 !important;
+    --color-warning-onBackground: #2a1c25 !important;
+    --color-warning-background: #c9a45c !important;
+    --color-warning-background-hover: #c6a054 !important;
+    --color-upvote-content: #d9474f !important;
+    --color-upvote-disabled: #b9b0b8 !important;
+    --color-upvote-onBackground: #ede3d1 !important;
+    --color-upvote-background: #2a1c25 !important;
+    --color-upvote-background-hover: #d5323b !important;
+    --color-upvote-background-disabled: #2a1c25 !important;
+    --color-downvote-content: #ede3d1 !important;
+    --color-downvote-content-weak: #ede3d1 !important;
+    --color-downvote-disabled: #b9b0b8 !important;
+    --color-downvote-onBackground: #ede3d1 !important;
+    --color-downvote-background: #2a1c25 !important;
+    --color-downvote-background-hover: #cea656 !important;
+    --color-downvote-background-disabled: #1e1419 !important;
+    --color-tone-1: #ede3d1 !important;
+    --color-tone-2: #b9b0b8 !important;
+    --color-tone-3: #9c8b93 !important;
+    --color-tone-4: #36242e !important;
+    --color-tone-5: #452e39 !important;
+    --color-tone-6: #553846 !important;
+    --color-tone-7: #2a1c25 !important;
+    --color-avatar-gradient: #d9474f !important;
+    --color-transparent-background-hover: rgba(54, 36, 46, 0.3) !important;
+    --color-opacity-50: rgba(42, 28, 37, 0.5) !important;
+    --color-online: #d9474f !important;
+    --color-favorite: #d9474f !important;
+    --color-brand-background: #d9474f !important;
+    --color-brand-background-hover: #d5323b !important;
+    --color-brand-onBackground: #ede3d1 !important;
+    --color-global-orangered: #d9474f !important;
+    --color-action-upvote: #d9474f !important;
+    --color-action-downvote: #d4b06a;
+    --color-banner-error-text: #2a1c25 !important;
+    --shreddit-color-wordmark: #d9474f;
+  }
+  ::selection {
+    background-color: rgba(179, 38, 58, 0.55);
+    color: #ede3d1;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #b9b0b8 !important;
+  }
+  #reddit-logo circle[fill="#FF4500"] {
+    fill: #d9474f !important;
+  }
+  #reddit-logo path[fill="#FFF"] {
+    fill: #150d10 !important;
+  }
+  shreddit-gallery-carousel .text-primary-onBackground {
+    color: #ede3d1;
+  }
+  shreddit-gallery-carousel .text-coolgray-350 {
+    color: #d3c9c4;
+  }
+  #pdp-credit-bar {
+    --color-neutral-background: #2a1c25;
+    --color-neutral-content: #ede3d1;
+    --color-neutral-content-weak: #b9b0b8;
+    --color-primary-hover: #e27177;
+  }
+  reddit-header-large reddit-search-large::before,
+  reddit-header-large reddit-search-large::after {
+    background: linear-gradient(#2a1c25, #2a1c25) padding-box, linear-gradient(90deg, #d9474f, #d9474f) border-box;
+  }
+
+  /* Lace & Ember touches beyond colour: square, hairline-edged post cards */
+  shreddit-post,
+  shreddit-comment-tree,
+  #right-sidebar-container > *,
+  faceplate-dropdown-menu {
+    border-radius: 0 !important;
+  }
+  shreddit-post {
+    box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.1) !important;
+  }
+  shreddit-post:hover {
+    box-shadow: inset 0 0 0 1px rgba(201, 164, 92, 0.45) !important;
+  }
+}

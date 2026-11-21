@@ -1,0 +1,48 @@
+/* Lace & Ember touches for YouTube. YouTube now paints its page background
+   from hashed custom properties (--t4a6…), which Catppuccin's --yt-spec-*
+   overrides no longer reach, so the near-black #0f0f0f / #212121 surfaces are
+   set directly here. Found by walking computed backgrounds (2026-11-21). */
+@-moz-document domain("youtube.com") {
+  html[dark],
+  html:not([dark]),
+  ytd-app,
+  ytd-masthead #background,
+  #skip-navigation,
+  tp-yt-app-drawer #contentContainer,
+  #guide-content,
+  ytd-mini-guide-renderer,
+  ytd-feed-filter-chip-bar-renderer #chips-wrapper,
+  #left-arrow-button,
+  #right-arrow-button,
+  ytd-feed-filter-chip-bar-renderer ytd-button-renderer {
+    background-color: #2a1c25 !important;
+  }
+  /* the masthead and chip bar sit on #frosted-glass: wine glass over the page */
+  #frosted-glass,
+  #frosted-glass.with-chipbar,
+  #frosted-glass.loading-with-chipbar {
+    background-color: rgba(42, 28, 37, 0.9) !important;
+    backdrop-filter: blur(14px) !important;
+  }
+  ytd-masthead #background {
+    background-color: transparent !important;
+  }
+  /* the fades either side of the chip row */
+  ytd-feed-filter-chip-bar-renderer #left-arrow::after {
+    background: linear-gradient(to right, #2a1c25 20%, rgba(42, 28, 37, 0) 80%) !important;
+  }
+  ytd-feed-filter-chip-bar-renderer #right-arrow::before {
+    background: linear-gradient(to left, #2a1c25 20%, rgba(42, 28, 37, 0) 80%) !important;
+  }
+  /* raised surfaces: search field, miniplayer, refresh banner, menus */
+  yt-searchbox > div,
+  .ytSearchboxComponentInputBox.ytSearchboxComponentInputBoxDark,
+  .ytSearchboxComponentInputBox,
+  .ytSearchboxComponentSuggestionsContainer,
+  ytd-miniplayer > div,
+  ytd-miniplayer-info-bar,
+  ytd-refresh,
+  tp-yt-paper-material#expand-button {
+    background-color: #36242e !important;
+  }
+}

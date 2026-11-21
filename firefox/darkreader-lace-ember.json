@@ -1,0 +1,26 @@
+{
+  "schemeVersion": 2,
+  "enabled": true,
+  "enabledByDefault": true,
+  "detectDarkTheme": false,
+  "changeBrowserTheme": false,
+  "enableForPDF": true,
+  "theme": {
+    "mode": 1,
+    "engine": "dynamicTheme",
+    "brightness": 100,
+    "contrast": 100,
+    "grayscale": 0,
+    "sepia": 0,
+    "useFont": false,
+    "textStroke": 0,
+    "darkSchemeBackgroundColor": "#2A1C25",
+    "darkSchemeTextColor": "#EDE3D1",
+    "lightSchemeBackgroundColor": "#EDE3D1",
+    "lightSchemeTextColor": "#2A1C25",
+    "selectionColor": "#B3263A",
+    "scrollbarColor": "#5A3A44",
+    "styleSystemControls": true,
+    "stylesheet": ""
+  }
+}

@@ -125,6 +125,30 @@ into the profile's `extensions/` folder, where `user.js` lets Firefox enable it
 at launch. Tabs stay horizontal; the first nine carry Roman numerals (⌘1–9).
 Rerun the script after editing the start page or its tiles.
 
+### Websites
+
+Two layers recolour websites to the palette instead of their own dark modes:
+
+- **[Dark Reader](https://darkreader.org)** for every site: import
+  `firefox/darkreader-lace-ember.json` (Dark Reader → Settings → Advanced →
+  Import Settings).
+- **[Stylus](https://github.com/openstyles/stylus)** styles for Reddit,
+  YouTube, Google and DuckDuckGo in `firefox/stylus/`. Turn Dark Reader off on
+  those sites. To install, serve the folder and open a style's URL so Stylus
+  offers to install it (pasting the Less source into "Write new style" won't
+  compile):
+  ```bash
+  cd ~/lace-ember/firefox/stylus && python3 -m http.server 8765 --bind 127.0.0.1
+  # then open http://127.0.0.1:8765/youtube.user.css (or reddit, google, duckduckgo)
+  ```
+  Set YouTube to its Dark appearance. Each style offers a Crimson, Gold or
+  Ember accent under Stylus's ⚙.
+
+`firefox/stylus/build.py <site> --fetch` builds a style for any site
+[Catppuccin's userstyles](https://github.com/catppuccin/userstyles) cover
+(MIT; their colour rules, our palette). Site-specific fixes go in
+`firefox/stylus/touches/<site>.css`.
+
 ### Zen
 
 ```bash
