@@ -1,0 +1,67 @@
+{
+  "alfredtheme": {
+    "name": "Lace & Ember",
+    "credit": "Lace & Ember",
+    "appearanceMode": 0,
+    "visualEffectMode": 2,
+    "blurMode": 0,
+    "window": {
+      "color": "#150D1066",
+      "borderColor": "#EDE3D159",
+      "borderPadding": 1,
+      "roundness": 0,
+      "width": 720,
+      "blur": 0,
+      "paddingHorizontal": 12,
+      "paddingVertical": 12
+    },
+    "search": {
+      "background": "#0B070940",
+      "backgroundSelected": "#B3263A99",
+      "roundness": 0,
+      "spacing": 10,
+      "paddingHorizontal": 12,
+      "paddingVertical": 10,
+      "text": {
+        "font": "Cinzel",
+        "size": 28,
+        "color": "#EDE3D1FF",
+        "colorSelected": "#EDE3D1FF"
+      }
+    },
+    "separator": {
+      "color": "#C9A45C8C",
+      "thickness": 1
+    },
+    "result": {
+      "backgroundSelected": "#B3263A59",
+      "roundness": 0,
+      "iconSize": 40,
+      "iconPaddingHorizontal": 10,
+      "paddingVertical": 6,
+      "textSpacing": 6,
+      "text": {
+        "font": "Inter Tight",
+        "size": 19,
+        "color": "#B9B0B8FF",
+        "colorSelected": "#EDE3D1FF"
+      },
+      "subtext": {
+        "font": "Inter Tight",
+        "size": 12,
+        "color": "#B9B0B8A6",
+        "colorSelected": "#C9A45CFF"
+      },
+      "shortcut": {
+        "font": "Cinzel",
+        "size": 15,
+        "color": "#C9A45C80",
+        "colorSelected": "#C9A45CFF"
+      }
+    },
+    "scrollbar": {
+      "color": "#C9A45C66",
+      "thickness": 2
+    }
+  }
+}

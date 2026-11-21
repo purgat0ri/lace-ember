@@ -9,6 +9,9 @@
  * first nine tabs carry Roman numerals (⌘1–9 jumps to them), echoing the
  * Lace bar's stages. */
 
+/* the gold icon set, built by ../icons.py */
+@import url("icons.css");
+
 :root {
   --le-ink: #0b0709;
   --le-obsidian: #150d10;
@@ -68,7 +71,14 @@
   font-family: var(--le-ui) !important;
 }
 
-/* ---- The window behind everything: dark storm ---------------------------- */
+/* ---- The window behind everything ------------------------------------------
+ * With the System theme on macOS (the one in use), Firefox makes <body>
+ * transparent and puts a translucent native material behind the whole window,
+ * so the toolbar area shows the desktop wallpaper blurred through it: with the
+ * Lace & Ember wallpaper, a violet to maroon dusk. That is the look Michael
+ * wants (2026-11-19: tried painting the gradient instead, the translucency
+ * looked better). The storm below only shows under a theme without that
+ * material. */
 #main-window {
   background:
     linear-gradient(rgba(11, 7, 9, 0.8), rgba(11, 7, 9, 0.9)),

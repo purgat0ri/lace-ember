@@ -95,7 +95,7 @@ window.lace = {
         const b = document.createElement("button");
         b.className = "pip" + (st.active ? " on" : "");
         b.textContent = st.name ? `${ROMAN[st.n - 1] || st.n} · ${st.name}` : (ROMAN[st.n - 1] || st.n);
-        b.setAttribute("aria-label", `Stage ${st.n}`);
+        b.setAttribute("aria-label", `Desktop ${st.n}`);
         b.onclick = () => post({ type: "stage", n: st.n });
         nav.appendChild(b);
       });

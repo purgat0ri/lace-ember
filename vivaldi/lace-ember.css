@@ -1,0 +1,416 @@
+/* Lace & Ember — Vivaldi chrome, horizontal tabs. CSS only: no JS mods, nothing
+ * written into the app bundle, so Vivaldi updates leave it alone.
+ *
+ * Loaded through Vivaldi's own "CSS modifications" experiment
+ * (vivaldi://experiments) with Settings → Appearance → Custom UI Modifications
+ * pointed at this folder. vivaldi/install.sh sets both. storm.css (the storm
+ * image as a data URI, built by install.sh) sits beside this file, because the
+ * mods folder only serves .css files.
+ *
+ * Colours come from the "Lace & Ember" Vivaldi theme (install.sh adds it), so
+ * Vivaldi's own derived shades stay consistent; this file does shape, type and
+ * the pieces a theme can't reach. Written against Vivaldi 8.3: Vivaldi renames
+ * UI parts now and then, so a rule that stops matching after an update is the
+ * first suspect.
+ *
+ * Layout mirrors firefox/chrome/userChrome.css: the storm sits behind the tab
+ * strip and toolbars; the page is one block inset from the window edge with
+ * gold corner pins; the first nine tabs carry Roman numerals (⌘1–9). */
+
+#browser {
+  --le-ink: #0b0709;
+  --le-obsidian: #150d10;
+  --le-panel: rgba(13, 8, 10, 0.96);
+  --le-crimson: #b3263a;
+  --le-storm: #d9474f;
+  --le-ember: #ff7a3d;
+  --le-gold: #c9a45c;
+  --le-bone: #ede3d1;
+  --le-ash: #b9b0b8;
+  --le-hair: rgba(237, 227, 209, 0.42);
+  --le-hair-soft: rgba(237, 227, 209, 0.16);
+  --le-glow: rgba(179, 38, 58, 0.6);
+  --le-ui: "Inter Tight", -apple-system, sans-serif;
+  --le-display: Cinzel, serif;
+  --le-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius: 0px !important;
+  --radiusHalf: 0px !important;
+  --radiusRound: 0px !important;
+  --radiusCap: 0px !important;
+  font-family: var(--le-ui) !important;
+}
+
+/* ---- The window behind everything: dark storm ----------------------------
+ * --le-storm-image is defined in storm.css; without it the window is plain ink. */
+/* The wash is a dusk gradient, slate violet on the left to maroon on the right
+ * with a plum floor. Those colours were sampled from how Firefox Developer
+ * Edition actually renders on the Air (far lighter than its stylesheet's ink
+ * overlay), which Michael preferred to near-black. The storm shows through
+ * faintly for texture. */
+#browser {
+  --le-dusk-violet: 49, 43, 68;   /* #312b44 */
+  --le-dusk-wine: 64, 40, 48;     /* #402830 */
+  --le-dusk-maroon: 77, 34, 34;   /* #4d2222 */
+  --le-dusk-plum: 81, 37, 51;     /* #512533 */
+  /* the same sweep at night strength, opaque, for anything that floats over the
+     page: address dropdown, focused field, popups */
+  --le-dusk-panel: linear-gradient(100deg, #221c2e, #2a1c25 58%, #311b1d);
+  --le-field: rgba(14, 9, 14, 0.55);
+  background:
+    linear-gradient(to top, rgba(var(--le-dusk-plum), 0.45), rgba(var(--le-dusk-plum), 0) 30%),
+    linear-gradient(100deg,
+      rgba(var(--le-dusk-violet), 0.62),
+      rgba(var(--le-dusk-wine), 0.56) 58%,
+      rgba(var(--le-dusk-maroon), 0.6)),
+    var(--le-storm-image, none) center 30% / cover no-repeat,
+    var(--le-ink) !important;
+}
+#browser #header,
+#browser #titlebar,
+#browser .tabbar-wrapper,
+#browser #tabs-tabbar-container,
+#browser #tabs-container,
+#browser #tabs-subcontainer,
+#browser #main,
+#browser .mainbar,
+#browser .mainbar > div,
+#browser .toolbar-mainbar,
+#browser .bookmark-bar,
+#browser .inner,
+#browser #panels-container,
+#browser #panels-container #switch,
+#browser footer,
+#browser .toolbar-statusbar {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+#browser .toolbar-mainbar {
+  position: relative;
+  color: var(--le-bone) !important;
+}
+/* a gold rule fading out under the toolbar */
+#browser .toolbar-mainbar::after {
+  content: "";
+  position: absolute;
+  inset: auto 40px 0 40px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(201, 164, 92, 0), rgba(201, 164, 92, 0.55), rgba(201, 164, 92, 0));
+}
+
+/* ---- The page: one Lace & Ember block ------------------------------------ */
+#browser #webview-container {
+  position: relative;
+  margin: 6px 10px 6px 4px !important;
+  border-radius: 0 !important;
+  outline: 1px solid var(--le-hair) !important;
+  outline-offset: -1px;
+  box-shadow: 0 0 0 1px #000, 0 0 0 4px rgba(10, 6, 8, 0.35), 0 18px 46px -14px var(--le-glow) !important;
+  background: var(--le-ink) !important;
+}
+/* Vivaldi insets the page stack by a few pixels for its own rounded frame */
+#browser #webpage-stack {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+#browser #webpage-stack,
+#browser .webpageview {
+  border-radius: 0 !important;
+}
+#browser footer {
+  border: 0 !important;
+}
+/* gold corner pins over the page edges (clicks pass through) */
+#browser #webview-container::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.85;
+  background:
+    linear-gradient(var(--le-gold), var(--le-gold)) top left / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top left / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top right / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) top right / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom left / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom left / 1px 12px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom right / 12px 1px no-repeat,
+    linear-gradient(var(--le-gold), var(--le-gold)) bottom right / 1px 12px no-repeat;
+}
+
+/* ---- Tabs ----------------------------------------------------------------- */
+#browser .tab-strip {
+  counter-reset: le-tab;
+}
+#browser .tab-position {
+  counter-increment: le-tab;
+}
+#browser .tab-position .tab {
+  font-family: var(--le-ui) !important;
+  font-size: 12.5px !important;
+  border-radius: 0 !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: var(--le-ash) !important;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s !important;
+}
+/* Vivaldi draws curved "ears" beside the active tab; square tabs have none */
+#browser .tab-position .tab::before,
+#browser .tab-position .tab::after {
+  display: none !important;
+}
+#browser .tab-position .tab:hover {
+  background: rgba(237, 227, 209, 0.05) !important;
+  border-color: var(--le-hair-soft) !important;
+  color: var(--le-bone) !important;
+}
+#browser .tab-position .tab.active {
+  background: rgba(179, 38, 58, 0.2) !important;
+  border-color: var(--le-hair) !important;
+  color: var(--le-bone) !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 8px 22px -10px var(--le-glow),
+    inset 0 -2px 0 var(--le-crimson) !important;
+}
+#browser .tab .favicon,
+#browser .tab .close {
+  border-radius: 0 !important;
+}
+/* Roman numerals on the first nine tabs, in Cinzel, before the favicon */
+#browser .tab-position .tab:not(.pinned) .tab-header::before {
+  content: counter(le-tab, upper-roman);
+  flex: 0 0 auto;
+  align-self: center;
+  font-family: var(--le-display);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(201, 164, 92, 0.7);
+  min-width: 2.2em;
+  margin-inline: 2px 0;
+  text-align: center;
+}
+#browser .tab-strip > span > .tab-position:nth-child(n + 10) .tab:not(.pinned) .tab-header::before {
+  content: "·";
+}
+#browser .tab-position .tab.active .tab-header::before {
+  color: var(--le-gold);
+}
+/* pinned tabs: square tiles */
+#browser .tab-position .tab.pinned {
+  border-color: rgba(237, 227, 209, 0.2) !important;
+  background: rgba(20, 12, 15, 0.7) !important;
+}
+#browser .tab-position .tab.pinned.active {
+  border-color: var(--le-gold) !important;
+}
+/* workspace switcher: the display face, like the Lace bar's stage names */
+#browser .tabbar-workspace-button .button-title {
+  font-family: var(--le-display) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: var(--le-gold) !important;
+}
+
+/* ---- Toolbar buttons ------------------------------------------------------- */
+#browser .button-toolbar > button,
+#browser .ToolbarButton-Button {
+  border-radius: 0 !important;
+  color: var(--le-ash);
+  fill: var(--le-ash);
+}
+#browser .button-toolbar > button:not([disabled]):hover {
+  color: var(--le-bone);
+  fill: var(--le-bone);
+  background-color: rgba(237, 227, 209, 0.07) !important;
+}
+#browser .toolbar-tabbar-after .newtab .button-icon {
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.18);
+}
+
+/* ---- Address field ----------------------------------------------------------- */
+#browser .UrlBar-AddressField,
+#browser .SearchField {
+  border-radius: 0 !important;
+  background: var(--le-field) !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.28) !important;
+  color: var(--le-bone) !important;
+  font-family: var(--le-ui) !important;
+}
+#browser .UrlBar-AddressField:hover {
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.45) !important;
+}
+#browser .UrlBar-AddressField:focus-within {
+  background: var(--le-dusk-panel) !important;
+  box-shadow: inset 0 0 0 1px var(--le-gold), 0 0 0 1px #000, 0 0 0 5px rgba(10, 6, 8, 0.4),
+    0 22px 60px -16px var(--le-glow) !important;
+}
+#browser .UrlBar-AddressField .UrlBar-UrlField,
+#browser .UrlBar-AddressField input {
+  font-family: var(--le-ui) !important;
+  color: var(--le-bone) !important;
+}
+/* the dropdown under the address field: an opaque dusk panel, gold hairline,
+   crimson bar on the chosen row */
+#browser .OmniDropdown {
+  border-radius: 0 !important;
+  background: var(--le-dusk-panel) !important;
+  border: 0 !important;
+  box-shadow: inset 0 0 0 1px var(--le-gold), 0 0 0 1px #000, 0 0 0 5px rgba(10, 6, 8, 0.4),
+    0 22px 60px -16px var(--le-glow) !important;
+  font-family: var(--le-ui) !important;
+  color: var(--le-bone) !important;
+}
+#browser .OmniDropdown .OmniLinkItem {
+  border-radius: 0 !important;
+  color: var(--le-bone) !important;
+}
+#browser .OmniDropdown .OmniLinkItem--Highlighted,
+#browser .OmniDropdown .OmniLinkItem:hover {
+  background: linear-gradient(90deg, rgba(179, 38, 58, 0.5), rgba(179, 38, 58, 0.16)) !important;
+  box-shadow: inset 2px 0 0 var(--le-ember) !important;
+}
+/* the second half of a row (address, "… Search", "Switch to Tab") in gold */
+#browser .OmniDropdown .OmniLinkItem-DisplayText > span:last-child:not(:first-child),
+#browser .OmniDropdown .OmniLinkItem-DisplayText > span:last-child:not(:first-child) *,
+#browser .OmniDropdown .OmniLinkItem-Url,
+#browser .OmniDropdown .OmniLinkItem-Url * {
+  color: var(--le-gold) !important;
+}
+#browser .OmniDropdown .OmniLinkItem-TabSwitchLabel,
+#browser .OmniDropdown .OmniLinkItem-Badge {
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--le-gold) !important;
+  box-shadow: inset 0 0 0 1px rgba(201, 164, 92, 0.5) !important;
+}
+#browser .OmniDropdown .OmniDropdown-Label {
+  font-family: var(--le-display) !important;
+  font-size: 9.5px !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: var(--le-gold) !important;
+}
+#browser .OmniDropdown .search-suggestion-warning {
+  background: rgba(10, 6, 10, 0.35) !important;
+  border-top: 1px solid rgba(201, 164, 92, 0.25) !important;
+  border-radius: 0 !important;
+}
+#browser .OmniDropdown .search-suggestion-warning svg {
+  color: var(--le-gold) !important;
+  stroke: var(--le-gold) !important;
+}
+
+/* ---- Toolbar popups (workspaces, tab list, profile, extensions, downloads) ---- */
+#browser .button-popup {
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: var(--le-dusk-panel) !important;
+  box-shadow: inset 0 0 0 1px var(--le-hair), 0 0 0 1px #000, 0 0 0 5px rgba(10, 6, 8, 0.4),
+    0 22px 60px -16px var(--le-glow) !important;
+  color: var(--le-bone) !important;
+  font-family: var(--le-ui) !important;
+}
+/* the little arrow that points back at the button */
+#browser .button-popup::before,
+#browser .button-popup::after {
+  display: none !important;
+}
+#browser .button-popup > *,
+#browser .button-popup .WorkspacePopup,
+#browser .button-popup .WorkspacePopup-Items {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+#browser .button-popup h1,
+#browser .button-popup h2,
+#browser .button-popup h3,
+#browser .button-popup label.heading {
+  font-family: var(--le-display) !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--le-gold) !important;
+}
+#browser .button-popup [class*="Item"]:hover,
+#browser .button-popup [class*="Item"][class*="active" i] {
+  background: linear-gradient(90deg, rgba(179, 38, 58, 0.5), rgba(179, 38, 58, 0.16)) !important;
+  border-radius: 0 !important;
+}
+#browser .button-popup input[type="text"],
+#browser .button-popup input[type="search"] {
+  border-radius: 0 !important;
+  background: var(--le-field) !important;
+  color: var(--le-bone) !important;
+  box-shadow: inset 0 0 0 1px rgba(237, 227, 209, 0.28) !important;
+}
+
+/* ---- Buttons inside popups and dialogs --------------------------------------- */
+#browser input[type="button"],
+#browser input[type="submit"],
+#browser button.primary,
+#browser .dialog-footer button {
+  border-radius: 0 !important;
+  font-family: var(--le-ui) !important;
+}
+#browser input[type="button"].primary,
+#browser input[type="submit"].primary,
+#browser button.primary {
+  background: var(--le-crimson) !important;
+  border-color: var(--le-gold) !important;
+  color: var(--le-bone) !important;
+}
+
+/* ---- Side panel strip and status bar ------------------------------------------ */
+#browser #panels-container #switch button {
+  border-radius: 0 !important;
+}
+#browser #panels-container #switch .button-toolbar.active > button {
+  box-shadow: inset 2px 0 0 var(--le-crimson) !important;
+  color: var(--le-bone);
+}
+#browser #panels-container .panel-group {
+  background: var(--le-obsidian) !important;
+  border-inline: 1px solid var(--le-hair-soft) !important;
+}
+#browser .toolbar-statusbar {
+  color: var(--le-ash) !important;
+  font-family: var(--le-ui) !important;
+}
+#browser .toolbar-statusbar .ClockButton .button-title {
+  font-family: var(--le-mono) !important;
+  color: var(--le-gold) !important;
+}
+
+/* ---- Popups, dialogs, find in page --------------------------------------------- */
+.vivaldi-tooltip .tooltip-item,
+.dialog-content,
+.popup,
+.quick-command-container {
+  border-radius: 0 !important;
+}
+.quick-command-container {
+  background: var(--le-panel) !important;
+  border: 1px solid var(--le-hair) !important;
+  box-shadow: 0 0 0 1px #000, 0 22px 60px -16px var(--le-glow) !important;
+  font-family: var(--le-ui) !important;
+}
+#browser .find-in-page {
+  background: var(--le-obsidian) !important;
+  border-bottom: 1px solid var(--le-hair-soft) !important;
+  color: var(--le-bone) !important;
+}
+#browser .find-in-page input {
+  border-radius: 0 !important;
+  background: var(--le-field) !important;
+  color: var(--le-bone) !important;
+}

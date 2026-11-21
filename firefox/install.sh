@@ -30,6 +30,9 @@ mkdir -p "$P/chrome" "$P/extensions"
 ln -sfn $here/user.js "$P/user.js"
 ln -sfn $here/chrome/userChrome.css "$P/chrome/userChrome.css"
 ln -sfn $here/../zen/storm-clean.jpg "$P/chrome/storm-clean.jpg"
+# the icon set: built here, imported by userChrome.css
+/usr/bin/python3 $here/icons.py
+ln -sfn $here/chrome/icons.css "$P/chrome/icons.css"
 
 # the start page is shared with Zen: build it there, install it here
 $here/../zen/build.sh

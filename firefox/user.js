@@ -21,4 +21,14 @@ user_pref("extensions.autoDisableScopes", 0);
 // after an update), so a rebuilt start page is picked up on the next restart
 user_pref("extensions.startupScanScopes", 1);
 
+// --- resource use (8 GB machines) ---
+// at most 2 content processes per site (default 4): fewer processes when
+// several tabs share a site
+user_pref("dom.ipc.processCount.webIsolated", 2);
+// discard background tabs when the system runs short of memory
+user_pref("browser.tabs.unloadOnLowMemory", true);
+// fixed 256 MB disk cache (value is in KB) instead of the auto-sized ~1 GB
+user_pref("browser.cache.disk.smart_size.enabled", false);
+user_pref("browser.cache.disk.capacity", 262144);
+
 // The home page is set by the extension (chrome_settings_overrides), not here.

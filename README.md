@@ -12,7 +12,8 @@ Looks come first; function second.
 | Piece | Tool | Folder |
 |---|---|---|
 | Embers, clock, weather, now playing (with tinted album art), to-do, codex quote | [Übersicht](https://tracesof.net/uebersicht/) widgets | `ubersicht/` |
-| Top bar and autohiding dock, floating above windows | **Lace.app**, a small Swift + WKWebView app | `app/` |
+| Top bar with your Spaces, a dock of live windows, a ⌘Tab window switcher | **Lace.app**, a small Swift + WKWebView app | `app/` |
+| Launcher | [Alfred](https://www.alfredapp.com) 6 theme, translucent | `alfred/` |
 | Browser chrome with horizontal tabs, plus a start page for new tabs and home | [Firefox Developer Edition](https://www.mozilla.org/firefox/developer/) `userChrome.css` and an unsigned extension | `firefox/` |
 | The same, for Zen's vertical layout | [Zen](https://zen-browser.app) `userChrome.css` (shares the start page) | `zen/` |
 | Terminal | [Ghostty](https://ghostty.org) theme | `ghostty/` |
@@ -55,8 +56,8 @@ and OmniFocus, and OmniFocus asks to allow an external script.
 
 `app/build.sh` compiles `app/main.swift`, bundles `app/web/` and installs to
 `~/Applications/Lace.app`. Everything visual is HTML/CSS in `app/web/`;
-the Swift only supplies data (stages, front app, battery, network, now playing,
-dock apps) and actions.
+the Swift only supplies data (Spaces, front app, battery, network, now playing,
+windows) and actions.
 
 1. **Optional but recommended:** make a local code-signing certificate so
    macOS keeps Lace's Accessibility permission across rebuilds. With ad-hoc
@@ -72,20 +73,41 @@ dock apps) and actions.
    ```
 2. `~/lace-ember/app/build.sh`
 3. Start at login: `~/lace-ember/launchd/install.sh`
-4. Give Lace **Accessibility** access (System Settings → Privacy & Security) so
-   the stage buttons can press your stage shortcut.
-5. Set the menu bar and the system Dock to hide automatically.
+4. Give Lace **Accessibility** access (System Settings → Privacy & Security).
+   It reads windows for the dock, raises them, and runs the ⌘Tab switcher.
+5. Turn on **Switch to Desktop 1–N** in System Settings → Keyboard → Keyboard
+   Shortcuts → Mission Control. The bar's buttons press ⌃N.
+6. Hide the menu bar automatically, and keep the system Dock out of the way.
+   It must stay running (it drives Spaces and Mission Control), so make it
+   wait before appearing:
+   `defaults write com.apple.dock autohide -bool true; defaults write com.apple.dock autohide-delay -float 1000; killall Dock`
+   (undo: `defaults delete com.apple.dock autohide-delay; killall Dock`).
 
-Stages come from [BetterStage](https://betterstage.app): the bar reads its
-`stages.json` and switches with ⌥1–9 (`stageKeyMods` in the config below). To
-keep tiled windows clear of the bar, give BetterStage a top safe area of about
-52 pt. Its settings window caps that at 32, so write it directly while
-BetterStage's main process is quit:
-`defaults write app.betterstage.macos safeAreaMode advanced; defaults write app.betterstage.macos safeAreaTop 52`.
+**What it does**
+- **Bar:** your Desktops as I, II, III…, following every switch; front app,
+  now playing, network, battery, clock.
+- **Dock:** one tile per open window on the current Space, plus minimised
+  windows after a divider. Click raises that window; right-click lists the
+  app's windows, Hide and Quit. Apps with no window here don't appear.
+- **⌘Tab:** a Lace & Ember block of the same windows, most recent first.
+  Tab/⇧Tab/←/→ move, Esc cancels, releasing ⌘ switches. It replaces the
+  system switcher while Lace runs.
+
+macOS's own window tiling doesn't know about the bar, so tiled windows can
+sit under it.
 
 Optional `~/.config/lace/config.json` (any subset of keys):
-`dock` (bundle IDs, `"|"` for a divider), `dockMode` (`autohide` | `pinned`),
-`showRunning`, `stageKeyMods` (e.g. `["opt"]`), `clockApp`.
+`dockMode` (`autohide` | `pinned`), `dockContent` (`windows` | `apps`; `apps`
+shows a launcher of `dock` bundle IDs, `"|"` for a divider, plus running apps),
+`showRunning`, `showMinimised`, `switcher` (`false` keeps the system ⌘Tab),
+`stageSource` (`spaces`, or `betterstage` to read
+[BetterStage](https://betterstage.app) stages, switched with ⌥N),
+`stageKeyMods` (e.g. `["ctrl"]`), `clockApp`.
+
+### Alfred
+
+Open `alfred/Lace & Ember.alfredappearance` to import it, then choose it in
+Alfred → Appearance. Built for Alfred 6.
 
 ### Firefox
 
