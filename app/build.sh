@@ -6,7 +6,7 @@ app=$HOME/Applications/Lace.app
 build=$(mktemp -d)/Lace.app
 mkdir -p $build/Contents/{MacOS,Resources}
 xcrun swiftc -O -o $build/Contents/MacOS/Lace $src/main.swift \
-  -framework Cocoa -framework WebKit -framework IOKit -framework Network
+  -framework Cocoa -framework WebKit -framework IOKit -framework Network -framework ScreenCaptureKit
 cp -R $src/web $build/Contents/Resources/web
 cat > $build/Contents/Info.plist <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>

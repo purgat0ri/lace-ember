@@ -23,6 +23,12 @@ body { display: flex; align-items: center; justify-content: center; height: 100v
 .tile .n { position: absolute; top: 4px; left: 6px; font-family: var(--display); font-size: 9px; font-weight: 700;
   letter-spacing: .04em; color: rgba(201, 164, 92, .55); }
 .tile.hidden img { opacity: .45; }
+/* a window on another desktop: its desktop's numeral in an ember corner */
+.tile .sp { position: absolute; right: -1px; bottom: -1px; min-width: 18px; padding: 2px 4px 1px; text-align: center;
+  font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: .04em;
+  color: var(--bone); background: rgba(179, 38, 58, .75); border: 1px solid rgba(201, 164, 92, .5); }
+.tile.away { border-color: rgba(237, 227, 209, .12); }
+.tile.away img { opacity: .7; }
 .tile.min { border-style: dashed; border-color: rgba(201, 164, 92, .4); }
 .tile.min img { width: 46px; height: 46px; }
 .tile.sel { transform: translateY(-6px); border-color: var(--gold); background: rgba(179, 38, 58, .22);
@@ -36,36 +42,113 @@ body { display: flex; align-items: center; justify-content: center; height: 100v
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .caption .a { margin-top: 3px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ash); }
 @keyframes rise { from { transform: translateY(8px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* list layout: windows down the left, the chosen one previewed on the right */
+.tl, .ls { display: none; }
+.sw:not(.list) .tl { display: flex; }
+.sw.list .ls { display: flex; }
+.sw.list { width: min(1180px, 88vw); height: min(640px, 78vh); padding: 22px 26px 24px; gap: 16px; }
+.ls { flex: 1; min-height: 0; width: 100%; gap: 22px; }
+.rows { width: 320px; flex: none; overflow-y: auto; display: flex; flex-direction: column; gap: 3px;
+  padding: 4px 8px 4px 2px; scrollbar-width: none; }
+.rows::-webkit-scrollbar { display: none; }
+.row { position: relative; display: grid; grid-template-columns: 22px 30px 1fr auto; align-items: center; gap: 10px;
+  padding: 7px 10px 7px 8px; border: 1px solid transparent; transition: background .12s, border-color .12s; }
+.row .n { font-family: var(--display); font-size: 9px; font-weight: 700; color: rgba(201, 164, 92, .5); text-align: right; }
+.row img { width: 30px; height: 30px; filter: grayscale(1) sepia(.45) saturate(1.6) hue-rotate(-28deg) brightness(.85) contrast(1.08); }
+.row .tx { min-width: 0; }
+.row .t { font-size: 13px; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .a { font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(185, 176, 184, .55); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .sp { font-family: var(--display); font-size: 9px; font-weight: 700; padding: 2px 5px 1px; color: var(--bone);
+  background: rgba(179, 38, 58, .6); border: 1px solid rgba(201, 164, 92, .45); }
+.row.min .t { font-style: italic; }
+.row.min img, .row.hidden img { opacity: .5; }
+.row.sel { background: linear-gradient(90deg, rgba(179, 38, 58, .42), rgba(179, 38, 58, .12)); border-color: rgba(201, 164, 92, .7); }
+.row.sel img { filter: none; opacity: 1; }
+.row.sel .t { color: var(--bone); font-family: var(--display); font-weight: 600; letter-spacing: .03em; }
+.row.sel .n { color: var(--gold); }
+.row.sel::before { content: ""; position: absolute; left: -6px; top: 50%; width: 7px; height: 7px;
+  transform: translateY(-50%) rotate(45deg); background: var(--ember); box-shadow: 0 0 10px var(--ember); }
+.pv { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.frame { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(237, 227, 209, .18); background:
+  radial-gradient(ellipse at 50% 40%, rgba(179, 38, 58, .14), transparent 70%), rgba(8, 5, 6, .55); overflow: hidden; }
+.frame::before { content: ""; position: absolute; inset: 6px; pointer-events: none; opacity: .8; z-index: 2; background:
+  linear-gradient(var(--gold), var(--gold)) top left / 16px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) top left / 1px 16px no-repeat,
+  linear-gradient(var(--gold), var(--gold)) top right / 16px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) top right / 1px 16px no-repeat,
+  linear-gradient(var(--gold), var(--gold)) bottom left / 16px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom left / 1px 16px no-repeat,
+  linear-gradient(var(--gold), var(--gold)) bottom right / 16px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom right / 1px 16px no-repeat; }
+.frame .shot { max-width: calc(100% - 36px); max-height: calc(100% - 36px); object-fit: contain;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .8), 0 18px 40px -12px rgba(0, 0, 0, .9); opacity: 0; transition: opacity .12s; }
+.frame.has .shot { opacity: 1; }
+.frame .ph { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 12px; transition: opacity .12s; }
+.frame.has .ph { opacity: 0; }
+.frame .ph img { width: 112px; height: 112px; opacity: .85; filter: drop-shadow(0 10px 24px rgba(179, 38, 58, .45)); }
+.frame .ph span { font-family: var(--display); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(201, 164, 92, .6); }
+.frame.wait .ph span { visibility: hidden; }
+.pv .caption { min-height: 0; max-width: none; }
 </style>
 </head>
 <body>
 <div class="sw blk pin" id="sw">
   <div class="kicker">Windows</div>
-  <div class="tiles" id="tiles"></div>
-  <div class="caption"><div class="t" id="t"></div><div class="a" id="a"></div></div>
+  <div class="tl" style="flex-direction:column;align-items:center;gap:18px">
+    <div class="tiles" id="tiles"></div>
+    <div class="caption"><div class="t" id="t"></div><div class="a" id="a"></div></div>
+  </div>
+  <div class="ls">
+    <div class="rows" id="rows"></div>
+    <div class="pv">
+      <div class="frame" id="frame"><img class="shot" id="shot" alt=""><div class="ph"><img id="phi" alt=""><span>No preview yet</span></div></div>
+      <div class="caption"><div class="t" id="lt"></div><div class="a" id="la"></div></div>
+    </div>
+  </div>
 </div>
 <script>
 const ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX"];
-let items = [];
+let items = [], sel = 0, layout = "tiles";
 const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const where = (it) => it.min ? `${it.app} · minimised` : it.space ? `${it.app} · Desktop ${ROMAN[it.space - 1] || it.space}` : it.app;
 window.lace = {
   update(s) {
-    items = s.items || [];
-    const box = $("tiles"); box.innerHTML = "";
+    items = s.items || []; layout = s.layout || "tiles";
+    const sw = $("sw"); sw.classList.toggle("list", layout === "list");
+    const box = $("tiles"), rows = $("rows"); box.innerHTML = ""; rows.innerHTML = "";
     items.forEach((it, i) => {
       const d = document.createElement("div");
-      d.className = "tile" + (it.min ? " min" : "") + (it.hidden ? " hidden" : "");
-      d.innerHTML = `<img alt="" src="${it.icon}"><span class="n">${ROMAN[i] || ""}</span>`;
+      d.className = "tile" + (it.min ? " min" : "") + (it.hidden ? " hidden" : "") + (it.space ? " away" : "");
+      d.innerHTML = `<img alt="" src="${it.icon}"><span class="n">${ROMAN[i] || ""}</span>`
+        + (it.space ? `<span class="sp">${ROMAN[it.space - 1] || it.space}</span>` : "");
       box.appendChild(d);
+      const r = document.createElement("div");
+      r.className = "row" + (it.min ? " min" : "") + (it.hidden ? " hidden" : "");
+      r.innerHTML = `<span class="n">${ROMAN[i] || i + 1}</span><img alt="" src="${it.icon}">`
+        + `<div class="tx"><div class="t">${esc(it.name)}</div><div class="a">${esc(it.min ? it.app + " · minimised" : it.app)}</div></div>`
+        + (it.space ? `<span class="sp">${ROMAN[it.space - 1] || it.space}</span>` : "<span></span>");
+      rows.appendChild(r);
     });
-    const sw = $("sw"); sw.style.animation = "none"; void sw.offsetWidth; sw.style.animation = "";
+    sw.style.animation = "none"; void sw.offsetWidth; sw.style.animation = "";
     this.select(s.sel || 0);
   },
   select(i) {
+    sel = i;
     document.querySelectorAll(".tile").forEach((t, j) => t.classList.toggle("sel", j === i));
+    document.querySelectorAll(".row").forEach((t, j) => t.classList.toggle("sel", j === i));
+    const row = document.querySelectorAll(".row")[i];
+    if (row) row.scrollIntoView({ block: "nearest" });
     const it = items[i];
-    $("t").textContent = it ? it.name : "";
-    $("a").textContent = it ? (it.min ? `${it.app} · minimised` : it.app) : "";
+    $("t").textContent = $("lt").textContent = it ? it.name : "";
+    $("a").textContent = $("la").textContent = it ? where(it) : "";
+    if (it) { $("phi").src = it.icon; }
+    $("frame").classList.remove("has"); $("frame").classList.add("wait");
+  },
+  preview(p) {
+    if (p.i !== sel) return;
+    const f = $("frame"), shot = $("shot");
+    if (p.url) { shot.src = p.url; f.classList.add("has"); f.classList.remove("wait"); }
+    else if (p.final) { f.classList.remove("has", "wait"); }
   },
 };
 </script>

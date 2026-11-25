@@ -89,7 +89,11 @@ windows) and actions.
 - **Dock:** one tile per open window on the current Space, plus minimised
   windows after a divider. Click raises that window; right-click lists the
   app's windows, Hide and Quit. Apps with no window here don't appear.
-- **⌘Tab:** a Lace & Ember block of the same windows, most recent first.
+- **⌘Tab:** a Lace & Ember block of your windows on every desktop, most
+  recent first; ones elsewhere carry their desktop's numeral, and choosing
+  one takes you there. Windows are listed down the left with a live preview
+  of the chosen one on the right (grant Lace Screen Recording for previews;
+  without it you get icon tiles).
   Tab/⇧Tab/←/→ move, Esc cancels, releasing ⌘ switches. It replaces the
   system switcher while Lace runs.
 
@@ -100,6 +104,8 @@ Optional `~/.config/lace/config.json` (any subset of keys):
 `dockMode` (`autohide` | `pinned`), `dockContent` (`windows` | `apps`; `apps`
 shows a launcher of `dock` bundle IDs, `"|"` for a divider, plus running apps),
 `showRunning`, `showMinimised`, `switcher` (`false` keeps the system ⌘Tab),
+`switcherAllSpaces` (`false`: this Space's windows only),
+`switcherLayout` (`list` | `tiles`),
 `stageSource` (`spaces`, or `betterstage` to read
 [BetterStage](https://betterstage.app) stages, switched with ⌥N),
 `stageKeyMods` (e.g. `["ctrl"]`), `clockApp`.

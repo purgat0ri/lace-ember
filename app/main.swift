@@ -8,6 +8,7 @@ import Cocoa
 import WebKit
 import IOKit.ps
 import Network
+import ScreenCaptureKit
 
 let home = FileManager.default.homeDirectoryForCurrentUser
 let configURL = home.appendingPathComponent(".config/lace/config.json")
@@ -19,6 +20,8 @@ let stagesURL = home.appendingPathComponent("Library/Application Support/BetterS
 // Mission Control "Switch to Desktop N" shortcuts instead.
 @_silgen_name("CGSMainConnectionID") func CGSMainConnectionID() -> Int32
 @_silgen_name("CGSCopyManagedDisplaySpaces") func CGSCopyManagedDisplaySpaces(_ cid: Int32) -> CFArray
+// The Spaces a window is on (mask 7 = every kind); lets ⌘Tab reach other desktops.
+@_silgen_name("CGSCopySpacesForWindows") func CGSCopySpacesForWindows(_ cid: Int32, _ mask: Int32, _ wids: CFArray) -> CFArray?
 // The window server id behind an AX window: a stable order for dock tiles.
 @_silgen_name("_AXUIElementGetWindow") func _AXUIElementGetWindow(_ el: AXUIElement, _ id: UnsafeMutablePointer<CGWindowID>) -> AXError
 
@@ -35,6 +38,8 @@ struct Config: Codable {
     var stageKeyMods: [String]? = nil      // chord for "switch to N"; default ⌃ for Spaces, ⌥ for BetterStage
     var clockApp: String = "com.flexibits.fantastical2.mac"
     var switcher: Bool = true              // Lace's own ⌘Tab window switcher instead of the system one
+    var switcherAllSpaces: Bool = true     // ⌘Tab lists windows on every desktop, not just this one
+    var switcherLayout: String = "list"    // "list": titles down the left, a preview on the right | "tiles"
     init() {}
     // any subset of keys works; missing ones keep their defaults
     init(from d: Decoder) throws {
@@ -49,6 +54,8 @@ struct Config: Codable {
         stageKeyMods = try c.decodeIfPresent([String].self, forKey: .stageKeyMods)
         clockApp = try c.decodeIfPresent(String.self, forKey: .clockApp) ?? def.clockApp
         switcher = try c.decodeIfPresent(Bool.self, forKey: .switcher) ?? def.switcher
+        switcherAllSpaces = try c.decodeIfPresent(Bool.self, forKey: .switcherAllSpaces) ?? def.switcherAllSpaces
+        switcherLayout = try c.decodeIfPresent(String.self, forKey: .switcherLayout) ?? def.switcherLayout
     }
     var useSpaces: Bool { stageSource != "betterstage" }
     var keyMods: [String] { stageKeyMods ?? (useSpaces ? ["ctrl"] : ["opt"]) }
@@ -136,6 +143,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
                      NSWorkspace.didTerminateApplicationNotification, NSWorkspace.didHideApplicationNotification,
                      NSWorkspace.didUnhideApplicationNotification] {
             ws.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in self?.pushBar(); self?.pushDock() }
+        }
+        // keep a preview of the window you just went to, for when it's on another desktop
+        ws.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self?.warmPreview() }
+        }
+        if config.switcher && config.switcherLayout != "tiles" && !CGPreflightScreenCaptureAccess() {
+            _ = CGRequestScreenCaptureAccess()   // asks once; without it ⌘Tab falls back to tiles
         }
         ws.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
             self?.pushBar(); self?.pushDock()
@@ -236,7 +250,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     // Control order, and which one is showing. "Switch to Desktop N" counts
     // the same desktops.
     func readSpaces() -> (count: Int, active: Int) {
-        guard let displays = CGSCopyManagedDisplaySpaces(CGSMainConnectionID()) as? [[String: Any]] else { return (0, 0) }
+        let (desktops, cur) = desktopSpaces()
+        let active = cur.flatMap { desktops.firstIndex(of: $0) }.map { $0 + 1 } ?? 0
+        return (min(desktops.count, 9), active)
+    }
+
+    // The main display's desktop Space ids in Mission Control order, and the current one.
+    func desktopSpaces() -> (ids: [Int], current: Int?) {
+        guard let displays = CGSCopyManagedDisplaySpaces(CGSMainConnectionID()) as? [[String: Any]] else { return ([], nil) }
         var mainUUID = "Main"
         if let n = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
            let u = CGDisplayCreateUUIDFromDisplayID(n.uint32Value)?.takeRetainedValue() {
@@ -244,11 +265,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         }
         let d = displays.first { ($0["Display Identifier"] as? String) == mainUUID }
             ?? displays.first { ($0["Display Identifier"] as? String) == "Main" } ?? displays.first
-        guard let d = d, let spaces = d["Spaces"] as? [[String: Any]] else { return (0, 0) }
+        guard let d = d, let spaces = d["Spaces"] as? [[String: Any]] else { return ([], nil) }
         let desktops = spaces.filter { ($0["type"] as? Int ?? 0) == 0 }.compactMap { $0["ManagedSpaceID"] as? Int }
-        let cur = (d["Current Space"] as? [String: Any])?["ManagedSpaceID"] as? Int
-        let active = cur.flatMap { desktops.firstIndex(of: $0) }.map { $0 + 1 } ?? 0
-        return (min(desktops.count, 9), active)
+        return (desktops, (d["Current Space"] as? [String: Any])?["ManagedSpaceID"] as? Int)
     }
 
     var stageFlags: CGEventFlags {
@@ -381,11 +400,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             let m: Bool = ax(w, kAXMinimizedAttribute) ?? false
             var wid: CGWindowID = 0
             _ = _AXUIElementGetWindow(w, &wid)
+            if !t.isEmpty { titleCache[wid] = t }   // ⌘Tab names windows on other desktops from this
             return Win(el: w, title: t.isEmpty ? (app.localizedName ?? "Window") : t, minimised: m, wid: wid)
         }.sorted { $0.wid < $1.wid }   // creation order, so tiles don't reshuffle on focus
     }
 
     var winTokens: [String: (AXUIElement, pid_t)] = [:]
+    var titleCache: [CGWindowID: String] = [:]
+    var mru: [CGWindowID] = []                  // focused windows, most recent first
+
+    func touchMRU(_ wid: CGWindowID) {
+        guard wid != 0 else { return }
+        mru.removeAll { $0 == wid }
+        mru.insert(wid, at: 0)
+        if mru.count > 200 { mru.removeLast() }
+    }
+
+    func focusedWID() -> CGWindowID {
+        guard let f = NSWorkspace.shared.frontmostApplication else { return 0 }
+        let a = AXUIElementCreateApplication(f.processIdentifier)
+        AXUIElementSetMessagingTimeout(a, 0.25)
+        guard let w: AXUIElement = ax(a, kAXFocusedWindowAttribute) else { return 0 }
+        var wid: CGWindowID = 0
+        _ = _AXUIElementGetWindow(w, &wid)
+        return wid
+    }
 
     func raise(_ w: AXUIElement, pid: pid_t) {
         // activate first, then make this window main and raise it, so the app
@@ -408,6 +447,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             let a = AXUIElementCreateApplication(f.processIdentifier)
             AXUIElementSetMessagingTimeout(a, 0.25)
             focused = ax(a, kAXFocusedWindowAttribute)
+            if let w = focused { var wid: CGWindowID = 0; _ = _AXUIElementGetWindow(w, &wid); touchMRU(wid) }
         }
         var live: [[String: Any]] = [], minimised: [[String: Any]] = []
         var tokens: [String: (AXUIElement, pid_t)] = [:]
@@ -516,11 +556,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     // MARK: ⌘Tab switcher
     // A session event tap sees ⌘Tab before the system switcher does and
     // swallows it (Accessibility is enough). Holding ⌘: Tab / ⇧Tab / ← → move,
-    // Esc cancels, releasing ⌘ raises the chosen window. Same windows as the
-    // dock: this Space's, most recently used first, then minimised ones.
+    // Esc cancels, releasing ⌘ raises the chosen window. Windows on every
+    // desktop, most recently used first, then minimised ones. Accessibility
+    // only sees this Space's windows, so the others come from the window
+    // server; choosing one switches to its desktop (⌃N), then raises it there.
+    struct Target { let el: AXUIElement?; let pid: pid_t; let wid: CGWindowID; let space: Int }
     var tap: CFMachPort?
     var switching = false
-    var switchList: [(el: AXUIElement, pid: pid_t)] = []
+    var switchList: [Target] = []
     var switchSel = 0
     var switchShown = false
 
@@ -556,35 +599,78 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     }
 
     func beginSwitch(back: Bool) {
-        // front-to-back order of on-screen windows, by window server id
+        touchMRU(focusedWID())
+        // every window the server knows, front to back (other desktops' too)
+        let all = CGWindowListCopyWindowInfo([.optionAll, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? []
         var z: [CGWindowID: Int] = [:]
-        if let info = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] {
-            for (i, w) in info.enumerated() { if let n = w[kCGWindowNumber as String] as? Int { z[CGWindowID(n)] = i } }
+        for (i, w) in all.enumerated() { if let n = w[kCGWindowNumber as String] as? Int { z[CGWindowID(n)] = i } }
+        func rank(_ wid: CGWindowID, _ hidden: Bool) -> Int {
+            if let i = mru.firstIndex(of: wid) { return i }
+            return (hidden ? 50_000 : 1_000) + (z[wid] ?? 20_000)
         }
-        var live: [(Int, [String: Any], AXUIElement, pid_t)] = [], mins: [([String: Any], AXUIElement, pid_t)] = []
+        let (desktops, cur) = desktopSpaces()
+        let curIdx = cur.flatMap { desktops.firstIndex(of: $0) }.map { $0 + 1 } ?? 0
+
+        var live: [(Int, [String: Any], Target)] = [], mins: [([String: Any], Target)] = []
+        var seen = Set<CGWindowID>()
+        var apps: [pid_t: (NSRunningApplication, String, URL)] = [:]
         for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular
             && app.bundleIdentifier != Bundle.main.bundleIdentifier {
             guard let id = app.bundleIdentifier, let url = app.bundleURL else { continue }
+            apps[app.processIdentifier] = (app, id, url)
             for w in windows(of: app) {
+                seen.insert(w.wid)
                 let item: [String: Any] = ["name": w.title, "app": app.localizedName ?? id, "icon": icon(for: url, id: id),
                                            "min": w.minimised, "hidden": app.isHidden]
-                if w.minimised { mins.append((item, w.el, app.processIdentifier)) }
-                else { live.append((z[w.wid] ?? (app.isHidden ? 50_000 : 10_000) + Int(w.wid), item, w.el, app.processIdentifier)) }
+                let t = Target(el: w.el, pid: app.processIdentifier, wid: w.wid, space: 0)
+                if w.minimised { mins.append((item, t)) } else { live.append((rank(w.wid, app.isHidden), item, t)) }
             }
         }
+
+        // windows on the other desktops of the main display
+        if config.useSpaces && config.switcherAllSpaces && desktops.count > 1 {
+            let cid = CGSMainConnectionID()
+            for w in all {
+                guard let n = w[kCGWindowNumber as String] as? Int, (w[kCGWindowLayer as String] as? Int) == 0,
+                      let pid = (w[kCGWindowOwnerPID as String] as? Int).map({ pid_t($0) }),
+                      let (app, id, url) = apps[pid] else { continue }
+                let wid = CGWindowID(n)
+                guard !seen.contains(wid), (w[kCGWindowAlpha as String] as? Double ?? 1) > 0 else { continue }
+                if let b = w[kCGWindowBounds as String] as? [String: Any],
+                   (b["Width"] as? Double ?? 0) < 80 || (b["Height"] as? Double ?? 0) < 60 { continue }
+                guard let sp = CGSCopySpacesForWindows(cid, 7, [NSNumber(value: wid)] as CFArray) as? [Int],
+                      !sp.contains(cur ?? -1),                  // on this desktop too (assigned to all)
+                      let idx = sp.compactMap({ desktops.firstIndex(of: $0) }).first.map({ $0 + 1 }),
+                      idx != curIdx else { continue }
+                seen.insert(wid)
+                let name = (w[kCGWindowName as String] as? String).flatMap { $0.isEmpty ? nil : $0 }
+                    ?? titleCache[wid] ?? app.localizedName ?? id
+                let item: [String: Any] = ["name": name, "app": app.localizedName ?? id, "icon": icon(for: url, id: id),
+                                           "min": false, "hidden": app.isHidden, "space": idx]
+                live.append((rank(wid, app.isHidden), item, Target(el: nil, pid: pid, wid: wid, space: idx)))
+            }
+        }
+
         live.sort { $0.0 < $1.0 }
         let items = live.map { $0.1 } + mins.map { $0.0 }
-        switchList = live.map { ($0.2, $0.3) } + mins.map { ($0.1, $0.2) }
+        switchList = live.map { $0.2 } + mins.map { $0.1 }
         guard !switchList.isEmpty else { return }
         switching = true
         switchSel = switchList.count > 1 ? (back ? switchList.count - 1 : 1) : 0
-        switcherView.evaluateJavaScript("window.lace && lace.update(\(json(["items": items, "sel": switchSel])))")
+        let list = listLayout
+        if list {
+            scFetch = refreshSCWindows()
+            let alive = Set(switchList.map { $0.wid })
+            previewCache = previewCache.filter { alive.contains($0.key) }
+        }
+        switcherView.evaluateJavaScript("window.lace && lace.update(\(json(["items": items, "sel": switchSel, "layout": list ? "list" : "tiles"])))")
+        showPreview()
         // a quick ⌘Tab flick switches without flashing the panel
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
             guard let self = self, self.switching, !self.switchShown else { return }
             self.switchShown = true
             let s = self.screen.frame
-            self.switcherPanel.setFrame(NSRect(x: s.minX, y: s.midY - 200, width: s.width, height: 400), display: true)
+            self.switcherPanel.setFrame(list ? s : NSRect(x: s.minX, y: s.midY - 200, width: s.width, height: 400), display: true)
             self.switcherPanel.orderFrontRegardless()
             NSAnimationContext.runAnimationGroup { $0.duration = 0.12; self.switcherPanel.animator().alphaValue = 1 }
         }
@@ -594,6 +680,79 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         guard !switchList.isEmpty else { return }
         switchSel = (switchSel + d + switchList.count) % switchList.count
         switcherView.evaluateJavaScript("window.lace && lace.select(\(switchSel))")
+        showPreview()
+    }
+
+    // MARK: previews (ScreenCaptureKit, needs Screen Recording)
+    // Only the selected window is captured, at up to 1600×1000 px. Each good
+    // capture is cached, because a window on another desktop can come back
+    // blank: then the last picture taken while it was visible stands in.
+    var previewCache: [CGWindowID: String] = [:]
+    var scWindows: [CGWindowID: SCWindow] = [:]
+    var scFetch: Task<Void, Never>?
+    var listLayout: Bool { config.switcherLayout != "tiles" && CGPreflightScreenCaptureAccess() }
+
+    func refreshSCWindows() -> Task<Void, Never> {
+        Task { @MainActor in
+            guard let c = try? await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false) else { return }
+            var m: [CGWindowID: SCWindow] = [:]
+            for w in c.windows { m[w.windowID] = w }
+            self.scWindows = m
+        }
+    }
+
+    func capture(_ wid: CGWindowID) async -> String? {
+        guard let w = scWindows[wid], w.frame.width > 1, w.frame.height > 1 else { return nil }
+        let cfg = SCStreamConfiguration()
+        let k = min(1600 / w.frame.width, 1000 / w.frame.height, 2)
+        cfg.width = Int(w.frame.width * k); cfg.height = Int(w.frame.height * k)
+        cfg.showsCursor = false
+        cfg.ignoreShadowsSingleWindow = true
+        guard let img = try? await SCScreenshotManager.captureImage(contentFilter: SCContentFilter(desktopIndependentWindow: w),
+                                                                     configuration: cfg),
+              !isBlank(img), let d = NSBitmapImageRep(cgImage: img).representation(using: .jpeg, properties: [.compressionFactor: 0.82])
+        else { return nil }
+        return "data:image/jpeg;base64," + d.base64EncodedString()
+    }
+
+    // a capture of a window macOS isn't drawing: fully transparent or flat black
+    func isBlank(_ img: CGImage) -> Bool {
+        let n = 12
+        var px = [UInt8](repeating: 0, count: n * n * 4)
+        guard let ctx = CGContext(data: &px, width: n, height: n, bitsPerComponent: 8, bytesPerRow: n * 4,
+                                  space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return false }
+        ctx.draw(img, in: CGRect(x: 0, y: 0, width: n, height: n))
+        var lit = 0
+        for i in stride(from: 0, to: px.count, by: 4) where px[i + 3] > 12 && Int(px[i]) + Int(px[i + 1]) + Int(px[i + 2]) > 24 { lit += 1 }
+        return lit < 3
+    }
+
+    func pushPreview(_ sel: Int, _ url: String?, final: Bool) {
+        switcherView.evaluateJavaScript("window.lace && lace.preview(\(json(["i": sel, "url": url.map { $0 as Any } ?? NSNull(), "final": final])))")
+    }
+
+    func showPreview() {
+        guard listLayout, switching, switchSel < switchList.count else { return }
+        let sel = switchSel, wid = switchList[sel].wid
+        pushPreview(sel, previewCache[wid], final: false)
+        Task { @MainActor in
+            await self.scFetch?.value
+            guard self.switching, self.switchSel == sel else { return }
+            let url = await self.capture(wid)
+            if let url = url { self.previewCache[wid] = url }
+            if self.switching && self.switchSel == sel { self.pushPreview(sel, url ?? self.previewCache[wid], final: true) }
+        }
+    }
+
+    func warmPreview() {
+        guard listLayout, !switching else { return }
+        let wid = focusedWID()
+        guard wid != 0 else { return }
+        Task { @MainActor in
+            if self.scWindows[wid] == nil { await self.refreshSCWindows().value }
+            if let url = await self.capture(wid) { self.previewCache[wid] = url }
+        }
     }
 
     func endSwitch(commit: Bool) {
@@ -603,10 +762,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         switcherPanel.alphaValue = 0
         switcherPanel.orderOut(nil)
         if commit, switchSel < switchList.count {
-            let w = switchList[switchSel]
-            raise(w.el, pid: w.pid)
+            let t = switchList[switchSel]
+            touchMRU(t.wid)
+            if let el = t.el { raise(el, pid: t.pid) } else { raiseAway(t) }
         }
         switchList = []
+    }
+
+    // Go to the window's desktop, then raise it once Accessibility can see it.
+    func raiseAway(_ t: Target) {
+        switchStage(t.space)
+        var tries = 0
+        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] timer in
+            tries += 1
+            guard let self = self, let app = NSRunningApplication(processIdentifier: t.pid) else { timer.invalidate(); return }
+            if let w = self.windows(of: app).first(where: { $0.wid == t.wid }) {
+                timer.invalidate(); self.raise(w.el, pid: t.pid)
+            } else if tries > 40 {
+                timer.invalidate(); app.activate(options: [])   // couldn't find it: at least bring the app
+            }
+        }
     }
 
     // MARK: web → actions
