@@ -1,0 +1,27 @@
+// Lace & Ember · Dusk. A still colour grade over web pages: shadows lean
+// towards dusk wine, whites towards bone, and the edges sink into a crimson
+// vignette. No animation, so it costs one pass and no redraws.
+uniform shader iChunk;
+uniform float2 iChunkSize;
+
+half4 main(float2 xy)
+{
+	const half3 WINE = half3(0.165, 0.110, 0.145);   // #2A1C25
+	const half3 BONE = half3(0.929, 0.890, 0.820);   // #EDE3D1
+	const half3 RIM = half3(0.42, 0.06, 0.11);       // crimson, darkened
+	const half GRADE = 0.55;
+	const half VIGNETTE = 0.6;
+
+	half4 c = iChunk.eval(xy);
+	half3 rgb = c.a > 0 ? c.rgb / c.a : half3(0);
+	half lum = dot(rgb, half3(0.299, 0.587, 0.114));
+	// split-tone: shadows to wine, highlights to bone
+	half3 toned = mix(WINE + rgb * (1 - WINE), rgb * BONE, smoothstep(0.25, 0.9, lum));
+	rgb = mix(rgb, toned, GRADE);
+
+	half2 uv = half2(xy / iChunkSize) - 0.5;
+	half d = length(uv * half2(1.15, 1.0));
+	half v = smoothstep(0.42, 0.85, d);
+	rgb = mix(rgb, mix(WINE * 0.55, RIM * 0.5, 0.35), v * VIGNETTE);
+	return half4(rgb * c.a, c.a);
+}

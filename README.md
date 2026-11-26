@@ -15,6 +15,8 @@ Looks come first; function second.
 | Top bar with your Spaces, a dock of live windows, a ⌘Tab window switcher | **Lace.app**, a small Swift + WKWebView app | `app/` |
 | Launcher | [Alfred](https://www.alfredapp.com) 6 theme, translucent | `alfred/` |
 | Browser chrome with horizontal tabs, plus a start page for new tabs and home | [Firefox Developer Edition](https://www.mozilla.org/firefox/developer/) `userChrome.css` and an unsigned extension | `firefox/` |
+| A full browser mod: three themes, the storm wallpaper, cursors, sidebar and toolbar icons, app icons, splash screen, page shaders, sounds | [Opera GX](https://www.opera.com/gx) mod (schema 2) | `operagx/` |
+| Keyboard-browsing hints and omnibar | [Surfingkeys](https://github.com/brookhong/Surfingkeys) theme | `surfingkeys/` |
 | The same, for Zen's vertical layout | [Zen](https://zen-browser.app) `userChrome.css` (shares the start page) | `zen/` |
 | Terminal | [Ghostty](https://ghostty.org) theme | `ghostty/` |
 | Prompt, two lines in gold corner brackets | [starship](https://starship.rs) | `starship.toml` |
@@ -154,6 +156,32 @@ Two layers recolour websites to the palette instead of their own dark modes:
 [Catppuccin's userstyles](https://github.com/catppuccin/userstyles) cover
 (MIT; their colour rules, our palette). Site-specific fixes go in
 `firefox/stylus/touches/<site>.css`.
+
+### Opera GX
+
+```bash
+brew install node ffmpeg imagemagick librsvg
+python3 -m pip install pillow
+~/lace-ember/operagx/build.sh
+```
+
+Then open `opera://extensions`, switch on Developer mode, **Load unpacked** and
+choose `~/lace-ember/operagx/dist/Lace-Ember-GX`. Pick the parts in GX Control →
+Mods (themes, wallpaper, cursors, icons, splash screen, fonts, shaders,
+speed-dial effects, music, sounds). The app icon needs
+`opera://configure/mods/interface/app_icon` and a restart.
+
+For the live wallpaper, point `LACE_STORM_VIDEO` at a looping MP4 before
+building; without one the mod uses the still storm. The mod uses GX's newer
+schema 2, which Opera doesn't document: each payload key is a list of named
+options with unique ids, and the sidebar and toolbar icons (`icons.py`) are
+Lottie JSON keyed `sidebar_*_button` / `top_bar_*_button`.
+
+### Surfingkeys
+
+Paste `surfingkeys/theme.js` at the end of your Surfingkeys settings (Advanced
+mode) and Save. It styles hints, visual mode, the omnibar, banner, status bar,
+help screen and tab overlay.
 
 ### Zen
 

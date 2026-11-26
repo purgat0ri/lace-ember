@@ -1,0 +1,23 @@
+// Lace & Ember speed-dial effect · Kindle. At rest a tile is dusk-toned
+// (wine shadows, bone lights); on hover its colour comes back and an ember
+// light rises from its lower edge. GX passes the accent colour in iArgs[1..3],
+// the background in iArgs[4..6] and the hover progress (0–100) in iArgs[7].
+uniform shader iChunk;
+uniform float2 iChunkSize;
+uniform float iArgs[9];
+
+half4 main(float2 xy)
+{
+	const half3 WINE = half3(0.165, 0.110, 0.145);
+	const half3 BONE = half3(0.929, 0.890, 0.820);
+	const half3 EMBER = half3(1.0, 0.478, 0.239);
+	half h = half(iArgs[7] / 100);
+	half4 c = iChunk.eval(xy);
+	half3 rgb = c.a > 0 ? c.rgb / c.a : half3(0);
+	half g = dot(rgb, half3(0.3, 0.59, 0.11));
+	half3 duo = mix(WINE, BONE, g);
+	rgb = mix(duo, rgb, h);
+	half y = half(xy.y / iChunkSize.y);
+	rgb += EMBER * smoothstep(0.55, 1.0, y) * 0.35 * h;
+	return half4(rgb * c.a, c.a);
+}

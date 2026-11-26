@@ -1,0 +1,57 @@
+// Lace & Ember · Embers. The Dusk grade plus a few embers drifting up from
+// the bottom edge, swaying and fading as they rise. 15 fps (900 steps over
+// 60 s); every ember completes whole cycles in 60 s, so the loop is seamless.
+uniform shader iChunk;
+uniform float2 iChunkSize;
+uniform float iFrame;
+
+half hash(float n) { return fract(sin(n * 91.345) * 47453.5453); }
+
+half4 main(float2 xy)
+{
+	const half3 WINE = half3(0.165, 0.110, 0.145);
+	const half3 BONE = half3(0.929, 0.890, 0.820);
+	const half3 RIM = half3(0.42, 0.06, 0.11);
+	const half3 EMBER = half3(1.0, 0.478, 0.239);    // #FF7A3D
+	const half3 GOLD = half3(0.788, 0.643, 0.361);   // #C9A45C
+	const float PERIOD = 60;                          // seconds; matches the manifest
+	// build.sh writes the variants by changing these three
+	const half GRADE = 0.45;                          // Dusk colour grade (0 = none)
+	const half VIG = 0.5;                             // wine vignette
+	const half LIGHTNING = 0;                         // 1 = two distant flashes per minute
+
+	half4 c = iChunk.eval(xy);
+	half3 rgb = c.a > 0 ? c.rgb / c.a : half3(0);
+	half lum = dot(rgb, half3(0.299, 0.587, 0.114));
+	half3 toned = mix(WINE + rgb * (1 - WINE), rgb * BONE, smoothstep(0.25, 0.9, lum));
+	rgb = mix(rgb, toned, GRADE);
+	half2 uv = half2(xy / iChunkSize) - 0.5;
+	rgb = mix(rgb, mix(WINE * 0.55, RIM * 0.5, 0.35), smoothstep(0.42, 0.85, length(uv * half2(1.15, 1.0))) * VIG);
+
+	// iFrame runs 0..100 over the animation's duration
+	float t = iFrame / 100 * PERIOD;
+	half glow = 0;
+	half warm = 0;
+	for (float i = 0; i < 16; i++) {
+		float k = 2 + floor(hash(i + 1.7) * 4);                // 2–5 rises per minute
+		float life = fract(t * k / PERIOD + hash(i + 3.1));    // 0 = bottom, 1 = gone
+		float sway = sin(6.2831 * (t * (1 + mod(i, 3)) / PERIOD + hash(i)));
+		// keep them to the outer thirds, where page content is thinnest
+		float side = hash(i + 9.2) < 0.5 ? 0.04 + hash(i + 5.5) * 0.24 : 0.72 + hash(i + 5.5) * 0.24;
+		float2 p = float2((side + sway * 0.025) * iChunkSize.x, (1.02 - life * 0.75) * iChunkSize.y);
+		float d = length(xy - p);
+		half fade = half(smoothstep(0.0, 0.08, life) * (1 - smoothstep(0.55, 1.0, life)));
+		half core = half(exp(-d * d / 5.0));
+		half halo = half(exp(-d * d / 160.0)) * 0.35;
+		glow += (core + halo) * fade;
+		warm += core * fade * half(hash(i + 2.2));
+	}
+	rgb += mix(EMBER, GOLD, clamp(warm, 0, 1)) * glow;
+	// lightning: a double flicker at 17 s and a single at 41 s, brightest at the top
+	float f1 = exp(-pow((t - 17.0) * 18, 2)) + 0.6 * exp(-pow((t - 17.22) * 22, 2));
+	float f2 = 0.8 * exp(-pow((t - 41.0) * 14, 2));
+	half flash = half((f1 + f2) * LIGHTNING) * (1 - half(xy.y / iChunkSize.y) * 0.6);
+	rgb = mix(rgb, half3(0.93, 0.90, 1.0), flash * 0.28);
+	half a = max(c.a, clamp(glow, 0, 1));
+	return half4(rgb * a, a);
+}

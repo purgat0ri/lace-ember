@@ -1,0 +1,14 @@
+// Lace & Ember speed-dial effect · Veil. Tiles rest under a crimson veil,
+// dimmed to a third, and lift it on hover.
+uniform shader iChunk;
+uniform float iArgs[9];
+
+half4 main(float2 xy)
+{
+	const half3 CRIMSON = half3(0.70, 0.15, 0.23);
+	half h = half(iArgs[7] / 100);
+	half4 c = iChunk.eval(xy);
+	half3 rgb = c.a > 0 ? c.rgb / c.a : half3(0);
+	half3 veiled = mix(rgb * 0.38, CRIMSON * dot(rgb, half3(0.3, 0.59, 0.11)), 0.35);
+	return half4(mix(veiled, rgb, h) * c.a, c.a);
+}
