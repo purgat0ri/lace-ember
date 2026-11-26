@@ -133,6 +133,12 @@ into the profile's `extensions/` folder, where `user.js` lets Firefox enable it
 at launch. Tabs stay horizontal; the first nine carry Roman numerals (⌘1–9).
 Rerun the script after editing the start page or its tiles.
 
+**Floorp** works too: `brew install --cask floorp`, launch and quit it once,
+then run `~/lace-ember/firefox/install.sh --floorp`. That also switches
+Floorp's design from Lepton to plain Proton (Lepton is a whole theme of its
+own), and `chrome/floorp.css` themes what Floorp adds: the web-panel sidebar,
+the workspaces button and the status bar.
+
 ### Websites
 
 Two layers recolour websites to the palette instead of their own dark modes:

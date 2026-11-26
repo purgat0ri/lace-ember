@@ -4,6 +4,17 @@
 // read chrome/userChrome.css
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 
+// The dusk gradient behind the toolbox is Firefox's "Nova" default theme
+// (browser.nova.enabled, locked on in Developer Edition, locked off by Floorp,
+// so no point setting it here; chrome/floorp.css paints it in Floorp).
+// Leave browser.theme.native-theme (false) and
+// widget.macos.titlebar-blend-mode.behind-window (false) at their defaults:
+// turning on the native macOS material replaces that gradient with near-black.
+
+// dark variants of native widgets (scrollbars, form controls). Already set in
+// the Developer Edition profile; Floorp lacked it.
+user_pref("ui.systemUsesDarkTheme", 1);
+
 // horizontal tabs, no sidebar
 user_pref("sidebar.verticalTabs", false);
 user_pref("sidebar.revamp", false);

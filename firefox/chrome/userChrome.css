@@ -11,6 +11,8 @@
 
 /* the gold icon set, built by ../icons.py */
 @import url("icons.css");
+/* Floorp's own parts (panel sidebar, workspaces, status bar); no-op in Firefox */
+@import url("floorp.css");
 
 :root {
   --le-ink: #0b0709;
@@ -72,13 +74,13 @@
 }
 
 /* ---- The window behind everything ------------------------------------------
- * With the System theme on macOS (the one in use), Firefox makes <body>
- * transparent and puts a translucent native material behind the whole window,
- * so the toolbar area shows the desktop wallpaper blurred through it: with the
- * Lace & Ember wallpaper, a violet to maroon dusk. That is the look Michael
- * wants (2026-11-19: tried painting the gradient instead, the translucency
- * looked better). The storm below only shows under a theme without that
- * material. */
+ * The violet to maroon dusk behind the tab strip and toolbar is Firefox's own
+ * "Nova" default theme: <body> carries --toolbox-background-gradient (violet
+ * #3e315f to rust #701c07 at 50%) over this storm. That is the look Michael
+ * wants (2026-11-19: tried painting a gradient here instead, Firefox's looked
+ * better). It is not macOS translucency: turning on browser.theme.native-theme
+ * swaps it for a near-black native material (2026-11-26). Floorp locks Nova
+ * off, so floorp.css paints the same gradient there. */
 #main-window {
   background:
     linear-gradient(rgba(11, 7, 9, 0.8), rgba(11, 7, 9, 0.9)),
